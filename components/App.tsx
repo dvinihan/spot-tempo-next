@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components/native";
 import { Text } from "react-native";
 import { QueryClient, QueryClientProvider } from "react-query";
-import Search from "../components/Search";
-import Header from "../components/Header";
+import Search from "./Search";
+import Header from "./Header";
 import { useAuth } from "../hooks/useAuth";
 import { AppContextProvider } from "../context/appContext";
 
