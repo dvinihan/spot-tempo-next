@@ -4,8 +4,8 @@ import { Text } from "react-native";
 import { QueryClient, QueryClientProvider } from "react-query";
 import Search from "./Search";
 import Header from "./Header";
-import { useAuth } from "../hooks/useAuth";
 import { AppContextProvider } from "../context/appContext";
+import { useAuth } from "../hooks/useAuth";
 
 const AppView = styled.View`
   background-color: #cdedcc;

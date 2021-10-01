@@ -1,22 +1,23 @@
 import { truncate } from "lodash";
+import styled from "styled-components/native";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
-import { useMutation } from "react-query";
-import styled from "styled-components/native";
+import { useMutation, UseQueryResult } from "react-query";
 import { useAppContext } from "../context/appContext";
 import { addSong, removeSong } from "../queries/songs";
+import Song from "../types/Song";
 
 const TouchableSongView = styled.TouchableHighlight`
   margin: 12px;
   padding: 10px;
   border-radius: 20px;
-  background-color: ${(props) =>
+  background-color: ${(props: any) =>
     props.isInDestinationPlaylist ? "#358c4e" : "#c8e2ee"};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-`;
+` as any;
 const Spacer = styled.View`
   width: 50px;
 `;
@@ -48,7 +49,12 @@ const LoadingView = styled.View`
   align-items: center;
 `;
 
-export const Song = ({ song, getMatchingSongsQuery }) => {
+type Props = {
+  song: Song;
+  getMatchingSongsQuery: UseQueryResult;
+};
+
+const Song = ({ song, getMatchingSongsQuery }: Props) => {
   const { accessToken } = useAppContext();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -60,8 +66,12 @@ export const Song = ({ song, getMatchingSongsQuery }) => {
     }
   }, [getMatchingSongsQuery.isRefetching]);
 
-  const addSongMutation = useMutation("addSong", addSong);
-  const removeSongMutation = useMutation("removeSong", removeSong);
+  const addSongMutation = useMutation("addSong", () =>
+    addSong(song.uri, getMatchingSongsQuery, accessToken)
+  );
+  const removeSongMutation = useMutation("removeSong", () =>
+    removeSong(song.uri, getMatchingSongsQuery, accessToken)
+  );
 
   const shiftSong = () => {
     if (!isLoading) {
@@ -70,11 +80,7 @@ export const Song = ({ song, getMatchingSongsQuery }) => {
         : addSongMutation;
 
       setIsLoading(true);
-      mutation.mutate({
-        songUri: song.uri,
-        getMatchingSongsQuery,
-        accessToken,
-      });
+      mutation.mutate();
     }
   };
 
@@ -86,7 +92,7 @@ export const Song = ({ song, getMatchingSongsQuery }) => {
   return (
     <TouchableSongView
       isInDestinationPlaylist={song.isInDestinationPlaylist}
-      onPress={() => shiftSong(song)}
+      onPress={() => shiftSong()}
     >
       {/* Touchable requires one child only */}
       <>

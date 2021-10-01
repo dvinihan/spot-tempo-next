@@ -1,10 +1,15 @@
 import React, { createContext, useContext, useState } from "react";
 
-const AppContext = createContext(AppContextProvider);
+type ContextProps = {
+  accessToken: string;
+  setAccessToken: (accessToken: string) => void;
+  userId: string;
+  setUserId: (userId: string) => void;
+};
 
-export const AppContextProvider = ({ children }) => {
-  const [accessToken, setAccessToken] = useState();
-  const [userId, setUserId] = useState();
+export const AppContextProvider = ({ children }: { children: any }) => {
+  const [accessToken, setAccessToken] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   return (
     <AppContext.Provider
@@ -14,5 +19,7 @@ export const AppContextProvider = ({ children }) => {
     </AppContext.Provider>
   );
 };
+
+const AppContext = createContext({} as ContextProps);
 
 export const useAppContext = () => useContext(AppContext);

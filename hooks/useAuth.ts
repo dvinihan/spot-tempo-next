@@ -1,56 +1,41 @@
+import axios from "axios";
+import { useRouter } from "next/dist/client/router";
 import { useEffect } from "react";
-import { maybeCompleteAuthSession } from "expo-web-browser";
-import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
-import { clientId } from "../constants/constants";
-import { login } from "../queries/auth";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { useAppContext } from "../context/appContext";
-
-maybeCompleteAuthSession();
-
-// Endpoint
-const discovery = {
-  authorizationEndpoint: "https://accounts.spotify.com/authorize",
-  tokenEndpoint: "https://accounts.spotify.com/api/token",
-};
+import { login } from "../queries/auth";
 
 export const useAuth = () => {
+  const router = useRouter();
+  const { code, state } = router.query;
+
   const { setAccessToken, setUserId } = useAppContext();
-  const loginMutation = useMutation("login", login);
 
-  const [request, response, promptAsync] = useAuthRequest(
-    {
-      clientId,
-      scopes: [
-        "playlist-read-private",
-        "playlist-modify-private",
-        "playlist-modify-public",
-        "user-library-read",
-      ],
-      // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
-      // this must be set to false
-      usePKCE: false,
-      redirectUri: makeRedirectUri(),
-    },
-    discovery
-  );
+  const authorizeSpotify = async () => {
+    await axios.get("https://accounts.spotify.com/authorize", {
+      params: {
+        client_id: process.env.CLIENT_ID,
+        response_type: "code",
+        redirect_uri: process.env.BASE_URL,
+        scope: [
+          "playlist-read-private",
+          "playlist-modify-private",
+          "playlist-modify-public",
+          "user-library-read",
+        ].join(" "),
+      },
+    });
+  };
+
+  const authQuery = useQuery("auth", authorizeSpotify);
+
+  const loginMutation = useMutation("login", () => login(code as string));
 
   useEffect(() => {
-    // promptAsync will throw error if request has not loaded yet
-    if (request) {
-      promptAsync();
+    if (code) {
+      loginMutation.mutate();
     }
-  }, [request, promptAsync]);
-
-  // Once auth is complete behind the scenes, we can login from our server
-  useEffect(() => {
-    (async () => {
-      if (response?.type === "success") {
-        const { code } = response.params;
-        loginMutation.mutate({ code, redirectUri: request.redirectUri });
-      }
-    })();
-  }, [request, response]);
+  });
 
   useEffect(() => {
     if (loginMutation.isSuccess) {
@@ -60,6 +45,6 @@ export const useAuth = () => {
   });
 
   return {
-    isLoading: loginMutation.isLoading,
+    isLoading: authQuery.isLoading || loginMutation.isLoading,
   };
 };

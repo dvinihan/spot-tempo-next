@@ -14,7 +14,7 @@ const Header = () => (
     <Title>Spotify BPM Picker</Title>
     <HeaderText>
       This app will allow you to search for songs by BPM in your Liked Songs,
-      and add them to your "SpotTempo" playlist.
+      and add them to your &quot;SpotTempo&quot; playlist.
     </HeaderText>
   </>
 );

@@ -44,7 +44,7 @@ const Loading = styled.Text`
 const Search = () => {
   const { accessToken } = useAppContext();
 
-  const [bpm, setBpm] = useState();
+  const [bpm, setBpm] = useState<number>(0);
 
   const getSavedSongsCountQuery = useQuery(
     ["getSavedSongsCount", accessToken],
@@ -60,7 +60,7 @@ const Search = () => {
     { enabled: false }
   );
 
-  const handleChange = (text) => setBpm(text);
+  const handleChange = (text: string) => setBpm(parseInt(text));
 
   const handleSearch = () => getMatchingSongsQuery.refetch();
 
@@ -77,15 +77,13 @@ const Search = () => {
         <>
           <ReloadButtonView>
             <Button
-              onPress={reloadSavedSongsMutation.mutate}
+              onPress={() => reloadSavedSongsMutation.mutate()}
               title="Reload saved songs"
             />
           </ReloadButtonView>
 
           <SearchBar>
             <SearchInput
-              id="searchbar"
-              type="text"
               onChangeText={handleChange}
               placeholder="BPM"
               placeholderTextColor="white"

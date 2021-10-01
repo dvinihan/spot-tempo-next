@@ -1,10 +1,9 @@
 import axios from "axios";
-import { serverUrl } from "../constants/constants";
 
-export const login = async ({ code, redirectUri } = {}) => {
-  const { data } = await axios.post(`${serverUrl}/login`, {
+export const login = async (code: string) => {
+  const { data } = await axios.post(`${process.env.BASE_URL}/api/login`, {
     code,
-    redirectUri,
+    redirectUri: process.env.BASE_URL,
   });
   return data;
 };
