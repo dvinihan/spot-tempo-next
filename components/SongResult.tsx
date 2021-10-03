@@ -54,7 +54,7 @@ type Props = {
   getMatchingSongsQuery: UseQueryResult;
 };
 
-const Song = ({ song, getMatchingSongsQuery }: Props) => {
+const SongResult = ({ song, getMatchingSongsQuery }: Props) => {
   const { accessToken } = useAppContext();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -118,4 +118,4 @@ const Song = ({ song, getMatchingSongsQuery }: Props) => {
   );
 };
 
-export default Song;
+export default SongResult;

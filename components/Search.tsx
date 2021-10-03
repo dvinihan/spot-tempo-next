@@ -6,7 +6,7 @@ import {
   getSavedSongsCount,
   reloadSavedSongs,
 } from "../queries/songs";
-import Song from "./Song";
+import SongResult from "./SongResult";
 import { useMutation, useQuery } from "react-query";
 import { useAppContext } from "../context/appContext";
 
@@ -97,7 +97,10 @@ const Search = () => {
             data={getMatchingSongsQuery.data}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <Song song={item} getMatchingSongsQuery={getMatchingSongsQuery} />
+              <SongResult
+                song={item}
+                getMatchingSongsQuery={getMatchingSongsQuery}
+              />
             )}
           />
         </>
