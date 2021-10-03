@@ -1,25 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getUserId, handleLogin } from "../../helpers/spotifyHelpers";
 
-export type LoginData = {
+export type Data = {
   accessToken: string;
-  accessTokenExpiryTime: number;
+  expiryTime: any;
   refreshToken: string;
   userId: string;
 };
 
-const login = async (req: NextApiRequest, res: NextApiResponse<{}>) => {
+const login = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const { code, redirectUri } = req.body;
 
   const authInfo = await handleLogin(code, redirectUri);
 
-  const { accessToken, accessTokenExpiryTime, refreshToken } = authInfo ?? {};
+  const { accessToken, expiryTime, refreshToken } = authInfo ?? {};
 
   const userId = await getUserId(accessToken);
 
   return res
     .status(200)
-    .send({ accessToken, accessTokenExpiryTime, refreshToken, userId });
+    .send({ accessToken, expiryTime, refreshToken, userId });
 };
 
 export default login;

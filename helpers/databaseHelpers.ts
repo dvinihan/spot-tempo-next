@@ -1,13 +1,13 @@
 import { Db } from "mongodb";
-import Song from "../types/Song.js";
-import { addPlaylistStatus } from "./index.js";
+import Song from "../types/Song";
+import { addPlaylistStatus } from "./index";
 import {
   getPlaylists,
   getUserId,
   getDestinationPlaylistId,
   getFreshPlaylistSongs,
   getFreshSavedSongs,
-} from "./spotifyHelpers.js";
+} from "./spotifyHelpers";
 
 export const getAccessToken = async (db: Db, userId: string) => {
   const document = await db.collection("saved-songs").findOne({ user: userId });
@@ -77,8 +77,8 @@ export const loadSavedSongs = async (db: Db, accessToken: string) => {
   ]);
 
   const savedSongsWithPlaylistStatus = addPlaylistStatus(
-    savedSongs,
-    destinationSongs
+    savedSongs ?? [],
+    destinationSongs ?? []
   );
 
   const userDocCount = await db

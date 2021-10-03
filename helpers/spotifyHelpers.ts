@@ -1,8 +1,8 @@
 import axios from "axios";
-import { DESTINATION_PLAYLIST_NAME } from "../constants/index.js";
-import Song from "../types/Song.js";
-import { AudioFeature, SpotifyPlaylist } from "../types/SpotifyTypes.js";
-import { buildHeaders, extractRelevantFields } from "./index.js";
+import { DESTINATION_PLAYLIST_NAME } from "../constants/index";
+import Song from "../types/Song";
+import { AudioFeature, SpotifyPlaylist } from "../types/SpotifyTypes";
+import { buildHeaders, extractRelevantFields } from "./index";
 
 export const createDestinationPlaylist = async (
   userId: string,
@@ -127,13 +127,14 @@ export const getUserId = async (accessToken: string) => {
 
     return data.id;
   } catch (error: any) {
-    console.log("error fetching userId:", error.message);
+    console.log("------oops");
+    console.log("error fetching userId:", error);
   }
 };
 
 export const handleLogin = async (code: string, redirectUri: string) => {
   const base64data = Buffer.from(
-    `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`
+    `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.CLIENT_SECRET}`
   ).toString("base64");
 
   try {
@@ -143,7 +144,7 @@ export const handleLogin = async (code: string, redirectUri: string) => {
         code,
         redirect_uri: redirectUri,
         grant_type: "authorization_code",
-      }),
+      }).toString(),
       {
         headers: {
           Authorization: `Basic ${base64data}`,
@@ -153,12 +154,44 @@ export const handleLogin = async (code: string, redirectUri: string) => {
 
     const currentTimeMilliseconds = Date.now();
     const expiresInMilliseconds = data.expires_in * 1000;
-    const accessTokenExpiryTime =
-      currentTimeMilliseconds + expiresInMilliseconds;
+    const expiryTime = currentTimeMilliseconds + expiresInMilliseconds;
 
     return {
       accessToken: data.access_token,
-      accessTokenExpiryTime,
+      expiryTime,
+      refreshToken: data.refresh_token,
+    };
+  } catch (error: any) {
+    console.log("login error", error.message);
+  }
+};
+
+export const handleRefresh = async (refreshToken: string) => {
+  const base64data = Buffer.from(
+    `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.CLIENT_SECRET}`
+  ).toString("base64");
+
+  try {
+    const { data } = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+      }).toString(),
+      {
+        headers: {
+          Authorization: `Basic ${base64data}`,
+        },
+      }
+    );
+
+    const currentTimeMilliseconds = Date.now();
+    const expiresInMilliseconds = data.expires_in * 1000;
+    const expiryTime = currentTimeMilliseconds + expiresInMilliseconds;
+
+    return {
+      accessToken: data.access_token,
+      expiryTime,
       refreshToken: data.refresh_token,
     };
   } catch (error: any) {

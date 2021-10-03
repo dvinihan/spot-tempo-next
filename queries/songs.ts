@@ -2,15 +2,18 @@ import axios from "axios";
 import { UseQueryResult } from "react-query";
 
 export const reloadSavedSongs = async (accessToken: string) => {
-  const { data } = await axios.post(`${process.env.BASE_URL}/api/reload`, {
-    accessToken,
-  });
+  const { data } = await axios.post(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/reload`,
+    {
+      accessToken,
+    }
+  );
   return data;
 };
 
 export const getSavedSongsCount = async (accessToken: string) => {
   const { data } = await axios.get(
-    `${process.env.BASE_URL}/api/getSavedSongsCount`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/getSavedSongsCount`,
     { params: { accessToken } }
   );
   return data;
@@ -18,7 +21,7 @@ export const getSavedSongsCount = async (accessToken: string) => {
 
 export const getMatchingSongs = async (bpm: number, accessToken: string) => {
   const { data } = await axios.get(
-    `${process.env.BASE_URL}/api/getMatchingSongs`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/getMatchingSongs`,
     { params: { bpm, start: 0, end: 100, accessToken } }
   );
   return data;
@@ -30,7 +33,7 @@ export const addSong = async (
   accessToken: string
 ) => {
   const { data, status } = await axios.post(
-    `${process.env.BASE_URL}/api/addSong`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/addSong`,
     {
       songUri,
       accessToken,
@@ -46,7 +49,7 @@ export const removeSong = async (
   accessToken: string
 ) => {
   const { data, status } = await axios.delete(
-    `${process.env.BASE_URL}/api/removeSong?songUri=${songUri}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/removeSong?songUri=${songUri}`,
     {
       data: { accessToken },
     }
