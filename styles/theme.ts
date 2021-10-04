@@ -1,7 +1,5 @@
 import { createTheme } from "@mui/material";
 
-const theme = createTheme({
-  spacing: 8,
-});
+const theme = createTheme({});
 
 export default theme;

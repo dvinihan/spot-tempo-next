@@ -101,6 +101,6 @@ export const useAuth = () => {
   ]);
 
   return {
-    isLoading: isLoginLoading,
+    isLoading: isLoginLoading || isRefreshLoading,
   };
 };

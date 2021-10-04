@@ -21,7 +21,7 @@ export const getDatabaseSavedSongs = async (db: Db, userId: string) => {
 
 export const updateDatabasePlaylistStatus = async (
   db: Db,
-  destinationSongs: Song[]
+  destinationSongs: Song[] = []
 ) => {
   const destinationSongIds = destinationSongs.map((song) => song.id);
 

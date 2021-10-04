@@ -4,49 +4,14 @@ import { useMutation, UseQueryResult } from "react-query";
 import { useAppContext } from "../context/appContext";
 import { addSong, removeSong } from "../queries/songs";
 import Song from "../types/Song";
-import { Button, CircularProgress, Container, Typography } from "@mui/material";
-
-// const TouchableSongView = styled.button`
-//   margin: 12px;
-//   padding: 10px;
-//   border-radius: 20px;
-//   background-color: ${(props: any) =>
-//     props.isInDestinationPlaylist ? "#358c4e" : "#c8e2ee"};
-//   display: flex;
-//   flex-direction: row;
-//   justify-content: space-between;
-//   align-items: center;
-// ` as any;
-// const Spacer = styled.div`
-//   width: 50px;
-// `;
-// const AddRemoveText = styled.div`
-//   font-size: 50px;
-// `;
-// const SongInfo = styled.div`
-//   margin: 0 12px;
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-// `;
-// const SongName = styled.div`
-//   font-weight: 600;
-//   font-size: 20px;
-// `;
-// const SongDetail = styled.div`
-//   font-size: 20px;
-// `;
-// const LoadingView = styled.div`
-//   background-color: rgba(255, 255, 255, 0.8);
-//   position: absolute;
-//   left: 0;
-//   border-radius: 20px;
-//   width: 100%;
-//   height: 100%;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// `;
+import {
+  ButtonBase,
+  CircularProgress,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
+import { Box } from "@mui/system";
 
 type Props = {
   song: Song;
@@ -89,25 +54,55 @@ const SongResult = ({ song, getMatchingSongsQuery }: Props) => {
   });
 
   return (
-    <Button
-      // isInDestinationPlaylist={song.isInDestinationPlaylist}
-      onClick={() => shiftSong()}
-    >
-      {/* Touchable requires one child only */}
-      <>
-        <div>{song.isInDestinationPlaylist ? "-" : "+"}</div>
-
-        <Container>
-          <Typography>{truncatedSongName}</Typography>
-          <Typography>{truncatedArtistName}</Typography>
-          <Typography>{song.tempo} BPM</Typography>
-        </Container>
-
-        <div />
-
-        {isLoading && <CircularProgress />}
-      </>
-    </Button>
+    <Container>
+      <ButtonBase
+        sx={{
+          width: 500,
+          bgcolor: song.isInDestinationPlaylist ? "#358c4e" : "#c8e2ee",
+          margin: 1.5,
+          padding: 1,
+          borderRadius: "20px",
+        }}
+        onClick={() => shiftSong()}
+      >
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Grid item width={50}>
+            <Typography fontSize={70} align="center">
+              {song.isInDestinationPlaylist ? "-" : "+"}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography align="center" fontSize={20} fontWeight={600}>
+              {truncatedSongName}
+            </Typography>
+            <Typography align="center" fontSize={20}>
+              {truncatedArtistName}
+            </Typography>
+            <Typography align="center" fontSize={20}>
+              {song.tempo} BPM
+            </Typography>
+          </Grid>
+          <Grid item width={50} />
+        </Grid>
+        {isLoading && (
+          <Box
+            sx={{
+              backgroundColor: "rgba(255, 255, 255, 0.8)",
+              position: "absolute",
+              left: 0,
+              borderRadius: "20px",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+      </ButtonBase>
+    </Container>
   );
 };
 
