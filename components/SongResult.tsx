@@ -1,8 +1,8 @@
 import { truncate } from "lodash";
 import React, { useEffect, useState } from "react";
-import { useMutation, UseQueryResult } from "react-query";
+import { UseQueryResult } from "react-query";
 import { useAppContext } from "../context/appContext";
-import { addSong, removeSong } from "../queries/songs";
+import { useAddSong, useMatchingSongs, useRemoveSong } from "../queries/songs";
 import Song from "../types/Song";
 import {
   ButtonBase,
@@ -15,13 +15,15 @@ import { Box } from "@mui/system";
 
 type Props = {
   song: Song;
-  getMatchingSongsQuery: UseQueryResult;
+  // getMatchingSongsQuery: UseQueryResult;
 };
 
-const SongResult = ({ song, getMatchingSongsQuery }: Props) => {
-  const { accessToken } = useAppContext();
-
+const SongResult = ({ song }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const getMatchingSongsQuery = useMatchingSongs();
+
+  const addSongMutation = useAddSong();
+  const removeSongMutation = useRemoveSong();
 
   // this is needed to prevent lag in color change
   useEffect(() => {
@@ -30,13 +32,6 @@ const SongResult = ({ song, getMatchingSongsQuery }: Props) => {
     }
   }, [getMatchingSongsQuery.isRefetching]);
 
-  const addSongMutation = useMutation("addSong", () =>
-    addSong(song.uri, getMatchingSongsQuery, accessToken)
-  );
-  const removeSongMutation = useMutation("removeSong", () =>
-    removeSong(song.uri, getMatchingSongsQuery, accessToken)
-  );
-
   const shiftSong = () => {
     if (!isLoading) {
       const mutation = song.isInDestinationPlaylist
@@ -44,7 +39,9 @@ const SongResult = ({ song, getMatchingSongsQuery }: Props) => {
         : addSongMutation;
 
       setIsLoading(true);
-      mutation.mutate();
+      mutation.mutate({
+        songUri: song.uri,
+      });
     }
   };
 

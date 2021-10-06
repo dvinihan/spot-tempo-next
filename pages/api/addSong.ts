@@ -10,10 +10,7 @@ import { buildHeaders } from "../../helpers";
 
 export type Data = {};
 
-const getSavedSongsCount = async (
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) => {
+const addSong = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const { accessToken } = req.body;
 
   const db = await connectToDatabase();
@@ -47,10 +44,11 @@ const getSavedSongsCount = async (
         arrayFilters: [{ "song.uri": req.body.songUri }],
       }
     );
+
     res.status(200).send({});
   } catch (error: any) {
     console.log("addSong error", error.message);
   }
 };
 
-export default getSavedSongsCount;
+export default addSong;

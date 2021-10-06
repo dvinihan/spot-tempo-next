@@ -50,9 +50,9 @@ export const useAuth = () => {
     if (isRefreshSuccess) {
       const { accessToken, expiryTime, refreshToken } = refreshData;
 
-      cookieCutter.set(ACCESS_TOKEN_COOKIE, accessToken);
-      cookieCutter.set(EXPIRY_TIME_COOKIE, expiryTime);
-      cookieCutter.set(REFRESH_TOKEN_COOKIE, refreshToken);
+      accessToken && cookieCutter.set(ACCESS_TOKEN_COOKIE, accessToken);
+      expiryTime && cookieCutter.set(EXPIRY_TIME_COOKIE, expiryTime);
+      refreshToken && cookieCutter.set(REFRESH_TOKEN_COOKIE, refreshToken);
 
       setAccessToken(accessToken);
     }
@@ -62,10 +62,10 @@ export const useAuth = () => {
     if (isLoginSuccess) {
       const { accessToken, expiryTime, refreshToken, userId } = loginData;
 
-      cookieCutter.set(ACCESS_TOKEN_COOKIE, accessToken);
-      cookieCutter.set(EXPIRY_TIME_COOKIE, expiryTime);
-      cookieCutter.set(REFRESH_TOKEN_COOKIE, refreshToken);
-      cookieCutter.set(USER_ID_COOKIE, userId);
+      accessToken && cookieCutter.set(ACCESS_TOKEN_COOKIE, accessToken);
+      expiryTime && cookieCutter.set(EXPIRY_TIME_COOKIE, expiryTime);
+      refreshToken && cookieCutter.set(REFRESH_TOKEN_COOKIE, refreshToken);
+      userId && cookieCutter.set(USER_ID_COOKIE, userId);
 
       setAccessToken(accessToken);
       setUserId(userId);

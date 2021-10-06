@@ -1,38 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  getMatchingSongs,
-  getSavedSongsCount,
-  reloadSavedSongs,
+  useMatchingSongs,
+  useReloadSavedSongs,
+  useSavedSongsCount,
 } from "../queries/songs";
 import SongResult from "./SongResult";
-import { useMutation, useQuery } from "react-query";
 import Song from "../types/Song";
 import { Button, Grid, Input, Typography } from "@mui/material";
 import { useAppContext } from "../context/appContext";
 
 const Search = () => {
-  const { accessToken } = useAppContext();
+  const { setBpm } = useAppContext();
 
-  const [bpm, setBpm] = useState<number>(0);
-
-  const getSavedSongsCountQuery = useQuery(
-    ["getSavedSongsCount", accessToken],
-    () => (accessToken ? getSavedSongsCount(accessToken) : undefined)
-  );
-  const reloadSavedSongsMutation = useMutation("reloadSavedSongs", () =>
-    reloadSavedSongs(accessToken)
-  );
-
-  const getMatchingSongsQuery = useQuery(
-    "getMatchingSongs",
-    () => getMatchingSongs(bpm, accessToken),
-    { enabled: false }
-  );
+  const savedSongsCountQuery = useSavedSongsCount();
+  const reloadSavedSongsMutation = useReloadSavedSongs();
+  const getMatchingSongsQuery = useMatchingSongs();
 
   const handleChange = (e: any) => setBpm(parseInt(e.target.value));
 
   const savedSongsCount =
-    reloadSavedSongsMutation.data?.total ?? getSavedSongsCountQuery.data?.count;
+    reloadSavedSongsMutation.data?.total ?? savedSongsCountQuery.data?.count;
 
   return (
     <Grid
@@ -84,15 +71,16 @@ const Search = () => {
               </Button>
             </Grid>
 
-            <Grid item>
-              {getMatchingSongsQuery.data?.map((song: Song) => (
-                <SongResult
-                  key={song.id}
-                  song={song}
-                  getMatchingSongsQuery={getMatchingSongsQuery}
-                />
-              ))}
-            </Grid>
+            {getMatchingSongsQuery.isFetching &&
+            !getMatchingSongsQuery.isRefetching ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              <Grid item>
+                {getMatchingSongsQuery.data?.map((song: Song) => (
+                  <SongResult key={song.id} song={song} />
+                ))}
+              </Grid>
+            )}
           </Grid>
         )}
       </Grid>

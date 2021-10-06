@@ -127,8 +127,7 @@ export const getUserId = async (accessToken: string) => {
 
     return data.id;
   } catch (error: any) {
-    console.log("------oops");
-    console.log("error fetching userId:", error);
+    console.log("error fetching userId:", error.message);
   }
 };
 

@@ -12,7 +12,7 @@ import {
 } from "../../helpers/databaseHelpers";
 import Song from "../../types/Song";
 
-export type Data = Song[];
+export type Data = { songs: Song[] };
 
 export const getMatchingSongs = async (
   req: NextApiRequest,
@@ -51,9 +51,9 @@ export const getMatchingSongs = async (
       track.tempo < Number(req.query.bpm) + 5
   );
 
-  return res
+  res
     .status(200)
-    .send(matchingTracks.slice(req.query.start, req.query.end));
+    .send({ songs: matchingTracks.slice(req.query.start, req.query.end) });
 };
 
 export default getMatchingSongs;

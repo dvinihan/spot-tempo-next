@@ -17,9 +17,7 @@ const login = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
   const userId = await getUserId(accessToken);
 
-  return res
-    .status(200)
-    .send({ accessToken, expiryTime, refreshToken, userId });
+  res.status(200).send({ accessToken, expiryTime, refreshToken, userId });
 };
 
 export default login;

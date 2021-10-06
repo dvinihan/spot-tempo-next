@@ -20,7 +20,8 @@ const reload = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   await loadSavedSongs(db, accessToken);
   const savedSongs = await getDatabaseSavedSongs(db, userId);
   const count = savedSongs.length;
-  return res.status(200).send({ count });
+
+  res.status(200).send({ count });
 };
 
 export default reload;

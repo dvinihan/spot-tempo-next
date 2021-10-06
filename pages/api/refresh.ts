@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getUserId, handleRefresh } from "../../helpers/spotifyHelpers";
+import { handleRefresh } from "../../helpers/spotifyHelpers";
 
 export type Data = {
   accessToken: string;
@@ -18,9 +18,7 @@ const refresh = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     refreshToken: newRefreshToken,
   } = authInfo ?? {};
 
-  // const userId = await getUserId(accessToken);
-
-  return res.status(200).send({
+  res.status(200).send({
     accessToken,
     expiryTime,
     refreshToken: newRefreshToken,
