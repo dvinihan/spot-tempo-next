@@ -1,27 +1,47 @@
-import React from "react";
-import Search from "./Search";
 import Header from "./Header";
-import { useAuth } from "../hooks/useAuth";
-import { Grid, Typography } from "@mui/material";
+import { Grid } from "@mui/material";
+import SongResult from "./SongResult";
+import SearchBar from "./SearchBar";
+import ReloadButton from "./ReloadButton";
+import { useMatchingSongs } from "../queries/songs";
+import Song from "../types/Song";
+import SongCount from "./SongCount";
+import LoadingModal from "./LoadingModal";
 
 export const App = () => {
-  const { isLoading } = useAuth();
+  const getMatchingSongsQuery = useMatchingSongs();
 
   return (
-    <Grid
-      container
-      direction="column"
-      spacing={3}
-      justifyContent="center"
-      alignItems="center"
-    >
-      <Grid item>
-        <Header />
+    <>
+      <Grid
+        container
+        direction="column"
+        spacing={3}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Grid item>
+          <Header />
+        </Grid>
+        <Grid item>
+          <SongCount />
+        </Grid>
+        <Grid item>
+          <ReloadButton />
+        </Grid>
+        <Grid item>
+          <SearchBar />
+        </Grid>
+        {getMatchingSongsQuery.isSuccess && (
+          <Grid item>
+            {getMatchingSongsQuery.data?.map((song: Song) => (
+              <SongResult key={song.id} song={song} />
+            ))}
+          </Grid>
+        )}
       </Grid>
-      <Grid item>
-        {isLoading ? <Typography>Loading...</Typography> : <Search />}
-      </Grid>
-    </Grid>
+      <LoadingModal />
+    </>
   );
 };
 

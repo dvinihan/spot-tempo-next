@@ -1,33 +1,14 @@
 import { useRouter } from "next/dist/client/router";
 import { useCallback, useEffect } from "react";
-import { useMutation } from "react-query";
-import { login, refresh } from "../queries/auth";
-import cookieCutter from "cookie-cutter";
-import { useAppContext } from "../context/appContext";
-import {
-  ACCESS_TOKEN_COOKIE,
-  EXPIRY_TIME_COOKIE,
-  REFRESH_TOKEN_COOKIE,
-  USER_ID_COOKIE,
-} from "../constants";
+import { useLogin, useRefresh } from "../queries/auth";
+import { getAuthCookies, setAuthCookies } from "../helpers/cookies";
 
 export const useAuth = () => {
-  const { query, isReady: isRouterReady, push: pushToRouter } = useRouter();
-  const { code, state } = query;
-  const { setAccessToken, setUserId } = useAppContext();
+  const router = useRouter();
+  const { code, state } = router.query;
 
-  const {
-    data: loginData,
-    isSuccess: isLoginSuccess,
-    isLoading: isLoginLoading,
-    mutate: doLogin,
-  } = useMutation("login", () => login(code as string));
-  const {
-    data: refreshData,
-    isSuccess: isRefreshSuccess,
-    isLoading: isRefreshLoading,
-    mutate: doRefresh,
-  } = useMutation("refresh", refresh);
+  const { mutate: doLogin, ...loginMutation } = useLogin();
+  const { mutate: doRefresh, ...refreshMutation } = useRefresh();
 
   const redirectToAuth = useCallback(async () => {
     const params = new URLSearchParams({
@@ -41,66 +22,43 @@ export const useAuth = () => {
         "user-library-read",
       ].join(" "),
     });
-    pushToRouter(
+    router.push(
       "https://accounts.spotify.com/authorize?".concat(params.toString())
     );
-  }, [pushToRouter]);
+  }, [router]);
 
   useEffect(() => {
-    if (isRefreshSuccess) {
-      const { accessToken, expiryTime, refreshToken } = refreshData;
-
-      accessToken && cookieCutter.set(ACCESS_TOKEN_COOKIE, accessToken);
-      expiryTime && cookieCutter.set(EXPIRY_TIME_COOKIE, expiryTime);
-      refreshToken && cookieCutter.set(REFRESH_TOKEN_COOKIE, refreshToken);
-
-      setAccessToken(accessToken);
+    if (refreshMutation.isSuccess) {
+      const { accessToken, expiryTime, refreshToken } = refreshMutation.data;
+      setAuthCookies({ accessToken, expiryTime, refreshToken });
     }
-  });
+  }, [refreshMutation.data, refreshMutation.isSuccess]);
 
   useEffect(() => {
-    if (isLoginSuccess) {
-      const { accessToken, expiryTime, refreshToken, userId } = loginData;
+    if (loginMutation.isSuccess) {
+      const { accessToken, expiryTime, refreshToken, userId } =
+        loginMutation.data;
 
-      accessToken && cookieCutter.set(ACCESS_TOKEN_COOKIE, accessToken);
-      expiryTime && cookieCutter.set(EXPIRY_TIME_COOKIE, expiryTime);
-      refreshToken && cookieCutter.set(REFRESH_TOKEN_COOKIE, refreshToken);
-      userId && cookieCutter.set(USER_ID_COOKIE, userId);
-
-      setAccessToken(accessToken);
-      setUserId(userId);
+      setAuthCookies({ accessToken, expiryTime, refreshToken, userId });
     }
-  });
+  }, [loginMutation.data, loginMutation.isSuccess]);
 
   useEffect(() => {
-    const accessTokenCookie = cookieCutter.get(ACCESS_TOKEN_COOKIE);
-    const expiryTimeCookie = cookieCutter.get(EXPIRY_TIME_COOKIE);
-    const refreshTokenCookie = cookieCutter.get(REFRESH_TOKEN_COOKIE);
-    const userIdCookie = cookieCutter.get(USER_ID_COOKIE);
+    const { accessTokenCookie, expiryTimeCookie, refreshTokenCookie } =
+      getAuthCookies();
 
-    const isExpired = expiryTimeCookie ? Date.now() > expiryTimeCookie : true;
+    const isExpired = expiryTimeCookie
+      ? Date.now() > parseInt(expiryTimeCookie)
+      : true;
 
-    if (accessTokenCookie && refreshTokenCookie) {
-      if (isExpired) {
-        doRefresh(refreshTokenCookie);
-      } else {
-        setAccessToken(accessTokenCookie);
-        setUserId(userIdCookie);
-      }
-    } else if (isRouterReady) {
-      code ? doLogin() : redirectToAuth();
+    if (accessTokenCookie && refreshTokenCookie && isExpired) {
+      doRefresh({ refreshToken: refreshTokenCookie });
+    } else if (router.isReady) {
+      code ? doLogin({ code: code as string }) : redirectToAuth();
     }
-  }, [
-    code,
-    doLogin,
-    doRefresh,
-    isRouterReady,
-    redirectToAuth,
-    setAccessToken,
-    setUserId,
-  ]);
+  }, [code, doLogin, doRefresh, redirectToAuth, router.isReady]);
 
   return {
-    isLoading: isLoginLoading || isRefreshLoading,
+    isAuthenticating: loginMutation.isLoading || refreshMutation.isLoading,
   };
 };

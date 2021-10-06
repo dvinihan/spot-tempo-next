@@ -1,15 +1,16 @@
 import axios from "axios";
 import { useMutation, useQuery } from "react-query";
 import { useAppContext } from "../context/appContext";
+import { getAuthCookies } from "../helpers/cookies";
 
 export const useReloadSavedSongs = () => {
-  const { accessToken } = useAppContext();
+  const { accessTokenCookie } = getAuthCookies();
 
   return useMutation("reloadSavedSongs", async () => {
     const { data } = await axios.post(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/reload`,
       {
-        accessToken,
+        accessToken: accessTokenCookie,
       }
     );
     return data;
@@ -17,30 +18,31 @@ export const useReloadSavedSongs = () => {
 };
 
 export const useSavedSongsCount = () => {
-  const { accessToken } = useAppContext();
+  const { accessTokenCookie } = getAuthCookies();
 
   return useQuery(
-    ["getSavedSongsCount", accessToken],
+    ["getSavedSongsCount", accessTokenCookie],
     async () => {
       const { data } = await axios.get(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/getSavedSongsCount`,
-        { params: { accessToken } }
+        { params: { accessToken: accessTokenCookie } }
       );
       return data;
     },
-    { enabled: Boolean(accessToken) }
+    { enabled: Boolean(accessTokenCookie) }
   );
 };
 
 export const useMatchingSongs = () => {
-  const { accessToken, bpm } = useAppContext();
+  const { accessTokenCookie } = getAuthCookies();
+  const { bpm } = useAppContext();
 
   return useQuery(
     "getMatchingSongs",
     async () => {
       const { data } = await axios.get(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/getMatchingSongs`,
-        { params: { bpm, start: 0, end: 100, accessToken } }
+        { params: { bpm, start: 0, end: 100, accessToken: accessTokenCookie } }
       );
       return data?.songs;
     },
@@ -50,7 +52,7 @@ export const useMatchingSongs = () => {
 };
 
 export const useAddSong = () => {
-  const { accessToken } = useAppContext();
+  const { accessTokenCookie } = getAuthCookies();
 
   const getMatchingSongsQuery = useMatchingSongs();
 
@@ -60,7 +62,7 @@ export const useAddSong = () => {
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/addSong`,
         {
           songUri,
-          accessToken,
+          accessToken: accessTokenCookie,
         }
       );
       return data;
@@ -74,7 +76,7 @@ export const useAddSong = () => {
 };
 
 export const useRemoveSong = () => {
-  const { accessToken } = useAppContext();
+  const { accessTokenCookie } = getAuthCookies();
 
   const getMatchingSongsQuery = useMatchingSongs();
 
@@ -83,7 +85,7 @@ export const useRemoveSong = () => {
       const { data } = await axios.delete(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/removeSong`,
         {
-          data: { accessToken },
+          data: { accessToken: accessTokenCookie },
           params: { songUri },
         }
       );
