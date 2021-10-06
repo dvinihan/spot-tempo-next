@@ -7,6 +7,8 @@ import {
 } from "../constants";
 
 export const getAuthCookies = () => {
+  if (typeof window === "undefined") return {};
+
   const accessTokenCookie = cookieCutter.get(ACCESS_TOKEN_COOKIE) as string;
   const expiryTimeCookie = cookieCutter.get(EXPIRY_TIME_COOKIE) as string;
   const refreshTokenCookie = cookieCutter.get(REFRESH_TOKEN_COOKIE) as string;
