@@ -19,8 +19,9 @@ export const useAuth = () => {
   const router = useRouter();
   const { code, state } = router.query;
 
-  const { mutate: doLogin, ...loginMutation } = useLogin();
-  const { mutate: doRefresh, ...refreshMutation } = useRefresh();
+  // mutation changes would trigger a useEffect refresh on every render, so we need to isolate the mutate fn only
+  const { mutate: doLogin } = useLogin();
+  const { mutate: doRefresh } = useRefresh();
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -48,8 +49,4 @@ export const useAuth = () => {
       );
     }
   }, [code, doLogin, doRefresh, router]);
-
-  return {
-    isAuthenticating: loginMutation.isLoading || refreshMutation.isLoading,
-  };
 };

@@ -1,20 +1,8 @@
-import { useAuth } from "../hooks/useAuth";
 import { Grid, Modal, Paper } from "@mui/material";
-import { useMatchingSongs, useReloadSavedSongs } from "../queries/songs";
+import { useAppContext } from "../context/appContext";
 
 const LoadingModal = () => {
-  const { isAuthenticating } = useAuth();
-
-  const reloadSavedSongsMutation = useReloadSavedSongs();
-  const getMatchingSongsQuery = useMatchingSongs();
-
-  const loadingText = isAuthenticating
-    ? "Getting logged in"
-    : reloadSavedSongsMutation.isLoading
-    ? "Loading all of your saved songs"
-    : getMatchingSongsQuery.isLoading
-    ? "Loading songs"
-    : undefined;
+  const { loadingText } = useAppContext();
 
   return (
     <Modal open={Boolean(loadingText)}>

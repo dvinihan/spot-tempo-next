@@ -7,8 +7,11 @@ import { useMatchingSongs } from "../queries/songs";
 import Song from "../types/Song";
 import SongCount from "./SongCount";
 import LoadingModal from "./LoadingModal";
+import { useAuth } from "../hooks/useAuth";
 
 export const App = () => {
+  useAuth();
+
   const getMatchingSongsQuery = useMatchingSongs();
 
   return (

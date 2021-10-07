@@ -1,20 +1,33 @@
 import axios from "axios";
 import { useMutation, useQuery } from "react-query";
+import { SAVED_SONGS_LOADING_TEXT } from "../constants";
 import { useAppContext } from "../context/appContext";
 import { getAuthCookies } from "../helpers/cookies";
 
 export const useReloadSavedSongs = () => {
   const { accessTokenCookie } = getAuthCookies();
+  const { setLoadingText } = useAppContext();
 
-  return useMutation("reloadSavedSongs", async () => {
-    const { data } = await axios.post(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/reload`,
-      {
-        accessToken: accessTokenCookie,
-      }
-    );
-    return data;
-  });
+  return useMutation(
+    "reloadSavedSongs",
+    async () => {
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/reload`,
+        {
+          accessToken: accessTokenCookie,
+        }
+      );
+      return data;
+    },
+    {
+      onMutate: () => {
+        setLoadingText(SAVED_SONGS_LOADING_TEXT);
+      },
+      onSettled: () => {
+        setLoadingText("");
+      },
+    }
+  );
 };
 
 export const useSavedSongsCount = () => {
@@ -35,7 +48,7 @@ export const useSavedSongsCount = () => {
 
 export const useMatchingSongs = () => {
   const { accessTokenCookie } = getAuthCookies();
-  const { bpm } = useAppContext();
+  const { bpm, setLoadingText } = useAppContext();
 
   return useQuery(
     "getMatchingSongs",
@@ -47,7 +60,12 @@ export const useMatchingSongs = () => {
       return data?.songs;
     },
     // rely only on manual freshes
-    { enabled: false }
+    {
+      enabled: false,
+      onSettled: () => {
+        setLoadingText("");
+      },
+    }
   );
 };
 
