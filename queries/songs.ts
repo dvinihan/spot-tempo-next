@@ -2,7 +2,7 @@ import axios from "axios";
 import { useMutation, useQuery } from "react-query";
 import { SAVED_SONGS_LOADING_TEXT } from "../constants";
 import { useAppContext } from "../context/appContext";
-import { getAuthCookies } from "../helpers/cookies";
+import { getAuthCookies } from "../util/cookies";
 
 export const useReloadSavedSongs = () => {
   const { accessTokenCookie } = getAuthCookies();

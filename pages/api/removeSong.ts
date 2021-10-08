@@ -1,14 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getPlaylistAndUserId } from "../../helpers/spotifyHelpers";
-import { buildHeaders } from "../../helpers";
 import axios from "axios";
+import { addRetryHandler } from "../../util/axios";
+import getPlaylistAndUserId from "../../serverHelpers/getPlaylistAndUserId";
+import { buildHeaders } from "../../util/headers";
 
 export type Data = {};
 
-const removeSong = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
+const removeSong = async (
+  req: NextApiRequest,
+  res: NextApiResponse<Data | Error>
+) => {
+  addRetryHandler();
+
   const { accessToken } = req.body;
 
-  const { playlistId } = await getPlaylistAndUserId(accessToken);
+  const ids = await getPlaylistAndUserId(accessToken);
+
+  if (ids instanceof Error) {
+    return res.status(500).send(ids);
+  }
+
+  const { playlistId } = ids;
 
   try {
     await axios({
@@ -20,9 +32,9 @@ const removeSong = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
       },
     });
 
-    res.status(200).send({});
+    return res.status(200).send({});
   } catch (error: any) {
-    console.log("removeSong error", error.message);
+    return res.status(500).send({ name: "removeSong", message: error.message });
   }
 };
 

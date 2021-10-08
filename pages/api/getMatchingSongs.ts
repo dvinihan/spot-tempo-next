@@ -1,14 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "../../util/mongodb";
 import Song from "../../types/Song";
-import fetchAllData from "../../helpers/fetchAllData";
+import fetchAllData from "../../serverHelpers/fetchAllData";
+import { addRetryHandler } from "../../util/axios";
 
 export type Data = { songs: Song[] };
 
 export const getMatchingSongs = async (
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<Data | Error>
 ) => {
+  addRetryHandler();
+
   const { accessToken, bpm, start, end } = req.query as {
     accessToken: string;
     bpm: string;
@@ -18,11 +21,17 @@ export const getMatchingSongs = async (
 
   const db = await connectToDatabase();
 
-  const { savedSongs, destinationSongs } = await fetchAllData({
+  const allData = await fetchAllData({
     db,
     accessToken,
     shouldGetFreshSongs: false,
   });
+
+  if (allData instanceof Error) {
+    return res.status(500).send(allData);
+  }
+
+  const { savedSongs, destinationSongs } = allData;
 
   const matchingTracksWithPlaylistStatus = savedSongs
     .filter(
@@ -35,7 +44,7 @@ export const getMatchingSongs = async (
       return { ...song, isInDestinationPlaylist } as Song;
     });
 
-  res.status(200).send({
+  return res.status(200).send({
     songs: matchingTracksWithPlaylistStatus.slice(
       parseInt(start),
       parseInt(end)

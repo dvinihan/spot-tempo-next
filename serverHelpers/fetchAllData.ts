@@ -1,6 +1,8 @@
 import { Db } from "mongodb";
-import { getDatabaseSavedSongs } from "./databaseHelpers";
-import { fetchTracksFromSpotify, getPlaylistAndUserId } from "./spotifyHelpers";
+import { AllData } from "../types/serverTypes";
+import fetchTracksFromSpotify from "./fetchTracksFromSpotify";
+import getDatabaseSavedSongs from "./getDatabaseSavedSongs";
+import getPlaylistAndUserId from "./getPlaylistAndUserId";
 
 const fetchAllData = async ({
   db,
@@ -10,8 +12,14 @@ const fetchAllData = async ({
   db: Db;
   accessToken: string;
   shouldGetFreshSongs: boolean;
-}) => {
-  const { playlistId, userId } = await getPlaylistAndUserId(accessToken);
+}): Promise<AllData | Error> => {
+  const ids = await getPlaylistAndUserId(accessToken);
+
+  if (ids instanceof Error) {
+    return ids;
+  }
+
+  const { playlistId, userId } = ids;
 
   const [savedSongs, destinationSongs] = await Promise.all([
     shouldGetFreshSongs
@@ -25,6 +33,13 @@ const fetchAllData = async ({
       accessToken,
     }),
   ]);
+
+  if (savedSongs instanceof Error) {
+    return savedSongs;
+  }
+  if (destinationSongs instanceof Error) {
+    return destinationSongs;
+  }
 
   return { savedSongs, destinationSongs, userId };
 };

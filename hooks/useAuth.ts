@@ -1,7 +1,7 @@
 import { useRouter } from "next/dist/client/router";
 import { useEffect } from "react";
 import { useLogin, useRefresh } from "../queries/auth";
-import { getAuthCookies } from "../helpers/cookies";
+import { getAuthCookies } from "../util/cookies";
 
 const authParams = new URLSearchParams({
   client_id: process.env.NEXT_PUBLIC_CLIENT_ID || "",

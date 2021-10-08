@@ -3,7 +3,7 @@ import { useRouter } from "next/dist/client/router";
 import { useMutation } from "react-query";
 import { AUTH_LOADING_TEXT } from "../constants";
 import { useAppContext } from "../context/appContext";
-import { setAuthCookies } from "../helpers/cookies";
+import { setAuthCookies } from "../util/cookies";
 
 export const useLogin = () => {
   const router = useRouter();

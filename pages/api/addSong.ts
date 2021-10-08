@@ -1,14 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getPlaylistAndUserId } from "../../helpers/spotifyHelpers";
 import axios from "axios";
-import { buildHeaders } from "../../helpers";
+import { addRetryHandler } from "../../util/axios";
+import getPlaylistAndUserId from "../../serverHelpers/getPlaylistAndUserId";
+import { buildHeaders } from "../../util/headers";
 
 export type Data = {};
 
-const addSong = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
+const addSong = async (
+  req: NextApiRequest,
+  res: NextApiResponse<Data | Error>
+) => {
+  addRetryHandler();
+
   const { accessToken } = req.body;
 
-  const { playlistId } = await getPlaylistAndUserId(accessToken);
+  const ids = await getPlaylistAndUserId(accessToken);
+
+  if (ids instanceof Error) {
+    return res.status(500).send(ids);
+  }
+
+  const { playlistId } = ids;
 
   try {
     await axios.post(
@@ -17,9 +29,9 @@ const addSong = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
       { headers: buildHeaders(accessToken) }
     );
 
-    res.status(200).send({});
+    return res.status(200).send({});
   } catch (error: any) {
-    console.log("addSong error", error.message);
+    return res.status(500).send({ name: "addSong", message: error.message });
   }
 };
 
