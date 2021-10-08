@@ -1,16 +1,14 @@
-import { Typography } from "@mui/material";
-import { useReloadSavedSongs, useSavedSongsCount } from "../queries/songs";
+import { CircularProgress, Typography } from "@mui/material";
+import { useSavedSongsCount } from "../queries/songs";
 
 const SongCount = () => {
   const savedSongsCountQuery = useSavedSongsCount();
-  const reloadSavedSongsMutation = useReloadSavedSongs();
 
-  const savedSongsCount =
-    reloadSavedSongsMutation.data?.total ?? savedSongsCountQuery.data?.count;
-
-  return (
+  return savedSongsCountQuery.isLoading ? (
+    <CircularProgress />
+  ) : (
     <Typography align="center" sx={{ fontWeight: 500 }}>
-      Total saved songs: {savedSongsCount}
+      Total saved songs: {savedSongsCountQuery.data?.count}
     </Typography>
   );
 };

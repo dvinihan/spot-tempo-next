@@ -15,5 +15,6 @@ export type SpotifyPlaylist = {
 };
 
 export type AudioFeature = {
+  id: string;
   tempo: number;
 };

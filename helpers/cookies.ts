@@ -27,7 +27,6 @@ export const setAuthCookies = ({
   accessToken?: string;
   expiryTime?: string;
   refreshToken?: string;
-  userId?: string;
 }) => {
   accessToken && cookieCutter.set(ACCESS_TOKEN_COOKIE, accessToken);
   expiryTime && cookieCutter.set(EXPIRY_TIME_COOKIE, expiryTime);

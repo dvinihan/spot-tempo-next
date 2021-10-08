@@ -1,10 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getUserId } from "../../helpers/spotifyHelpers";
 import { connectToDatabase } from "../../util/mongodb";
-import {
-  getDatabaseSavedSongs,
-  loadSavedSongs,
-} from "../../helpers/databaseHelpers";
+import fetchAllData from "../../helpers/fetchAllData";
 
 export type Data = {
   count: number;
@@ -15,13 +11,34 @@ const reload = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
   const db = await connectToDatabase();
 
-  const userId = await getUserId(accessToken);
+  const { savedSongs, userId } = await fetchAllData({
+    db,
+    accessToken,
+    shouldGetFreshSongs: true,
+  });
 
-  await loadSavedSongs(db, accessToken);
-  const savedSongs = await getDatabaseSavedSongs(db, userId);
-  const count = savedSongs.length;
+  const userDocCount = await db
+    .collection("saved-songs")
+    .find({ userId })
+    .count();
 
-  res.status(200).send({ count });
+  if (userDocCount === 0) {
+    await db.collection("saved-songs").insertOne({
+      songs: savedSongs,
+      userId,
+    });
+  } else {
+    await db.collection("saved-songs").updateOne(
+      { userId },
+      {
+        $set: {
+          songs: savedSongs,
+        },
+      }
+    );
+  }
+
+  res.status(200).send({});
 };
 
 export default reload;

@@ -3,11 +3,32 @@ import { DESTINATION_PLAYLIST_NAME } from "../constants/index";
 import Song from "../types/Song";
 import { AudioFeature, SpotifyPlaylist } from "../types/SpotifyTypes";
 import { buildHeaders, extractRelevantFields } from "./index";
+import { retryHelper } from "./retryHelper";
+
+type Ids = {
+  playlistId: string;
+  userId: string;
+};
+
+export const getPlaylistAndUserId = async (
+  accessToken: string
+): Promise<Ids> => {
+  const [playlists, userId] = await Promise.all([
+    getPlaylists(accessToken),
+    getUserId(accessToken),
+  ]);
+
+  const destinationPlaylist =
+    playlists.find((playlist) => playlist.name === DESTINATION_PLAYLIST_NAME) ||
+    (await createDestinationPlaylist(userId, accessToken));
+
+  return { playlistId: destinationPlaylist?.id ?? "", userId };
+};
 
 export const createDestinationPlaylist = async (
   userId: string,
   accessToken: string
-) => {
+): Promise<SpotifyPlaylist | undefined> => {
   try {
     const { data } = await axios.post(
       `https://api.spotify.com/v1/users/${userId}/playlists`,
@@ -18,45 +39,15 @@ export const createDestinationPlaylist = async (
         headers: buildHeaders(accessToken),
       }
     );
-    return data.id;
+    return data;
   } catch (error: any) {
     console.log("error creating destination playlist", error.message);
   }
 };
 
-export const getDestinationPlaylistId = async (
-  playlists: SpotifyPlaylist[],
-  userId: string,
+export const getPlaylists = async (
   accessToken: string
-) => {
-  const destinationPlaylist =
-    playlists.find((playlist) => playlist.name === DESTINATION_PLAYLIST_NAME) ||
-    (await createDestinationPlaylist(userId, accessToken));
-
-  return destinationPlaylist.id;
-};
-
-export const getFreshPlaylistSongs = async (
-  destinationPlaylistId: string,
-  userId: string,
-  accessToken: string
-) => {
-  // Refetch destination songs from Spotify
-  return await getTracks({
-    playlistId: destinationPlaylistId,
-    userId,
-    accessToken,
-  });
-};
-
-export const getFreshSavedSongs = async (accessToken: string) => {
-  // Refetch saved songs from Spotify
-  return await getTracks({
-    accessToken,
-  });
-};
-
-export const getPlaylists = async (accessToken: string) => {
+): Promise<SpotifyPlaylist[]> => {
   try {
     const { data } = await axios.get(
       "https://api.spotify.com/v1/me/playlists",
@@ -67,29 +58,24 @@ export const getPlaylists = async (accessToken: string) => {
     return data.items;
   } catch (error: any) {
     console.log("error fetching playlists:", error.message);
+    return [];
   }
 };
 
-export const getTracks = async ({
-  playlistId,
-  userId,
+export const fetchTracksFromSpotify = async ({
+  tracksUrl,
   accessToken,
 }: {
-  playlistId?: string;
-  userId?: string;
+  tracksUrl: string;
   accessToken: string;
 }) => {
   try {
-    const tracksUrl = playlistId
-      ? `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`
-      : "https://api.spotify.com/v1/me/tracks";
-
     // Get the first batch of tracks and the total number of tracks
-    const { data: firstTrackData } = await axios.get(`${tracksUrl}?limit=50`, {
+    const response = await axios.get(`${tracksUrl}?limit=50`, {
       headers: buildHeaders(accessToken),
     });
 
-    const total = firstTrackData.total;
+    const { items, total } = response.data;
 
     // Get the rest of the tracks
     const promises = [];
@@ -103,35 +89,47 @@ export const getTracks = async ({
 
     const promisesResponse = await Promise.all(promises);
 
-    const songs = [...firstTrackData.items];
-    promisesResponse.forEach((response) => {
-      songs.push(...response.data.items);
+    const songs = [...items];
+    promisesResponse.forEach((res) => {
+      songs.push(...res.data.items);
     });
 
     const songsCompact = songs.map((song) => extractRelevantFields(song.track));
 
     return await addSongTempos(songsCompact, total, accessToken);
   } catch (error: any) {
-    console.log(
-      `error getting tracks from ${playlistId ? "playlist" : "saved songs"}:`,
-      error.message
-    );
+    console.log("error getting tracks from spotify:", error.message);
+    return [];
   }
 };
 
-export const getUserId = async (accessToken: string) => {
+export const getUserId = async (accessToken: string): Promise<string> => {
   try {
-    const { data } = await axios.get("https://api.spotify.com/v1/me", {
-      headers: buildHeaders(accessToken),
-    });
+    const response = await retryHelper(
+      axios.get("https://api.spotify.com/v1/me", {
+        headers: buildHeaders(accessToken),
+      })
+    );
 
-    return data.id;
+    return response?.data.id;
   } catch (error: any) {
     console.log("error fetching userId:", error.message);
+    return "";
   }
 };
 
-export const handleLogin = async (code: string, redirectUri: string) => {
+interface LoginBody {
+  code: string;
+  redirect_uri: string;
+  grant_type: string;
+}
+
+interface RefreshBody {
+  refresh_token: string;
+  grant_type: string;
+}
+
+export const handleLogin = async (body: LoginBody | RefreshBody) => {
   const base64data = Buffer.from(
     `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.CLIENT_SECRET}`
   ).toString("base64");
@@ -139,44 +137,7 @@ export const handleLogin = async (code: string, redirectUri: string) => {
   try {
     const { data } = await axios.post(
       "https://accounts.spotify.com/api/token",
-      new URLSearchParams({
-        code,
-        redirect_uri: redirectUri,
-        grant_type: "authorization_code",
-      }).toString(),
-      {
-        headers: {
-          Authorization: `Basic ${base64data}`,
-        },
-      }
-    );
-
-    const currentTimeMilliseconds = Date.now();
-    const expiresInMilliseconds = data.expires_in * 1000;
-    const expiryTime = currentTimeMilliseconds + expiresInMilliseconds;
-
-    return {
-      accessToken: data.access_token,
-      expiryTime,
-      refreshToken: data.refresh_token,
-    };
-  } catch (error: any) {
-    console.log("login error", error.message);
-  }
-};
-
-export const handleRefresh = async (refreshToken: string) => {
-  const base64data = Buffer.from(
-    `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.CLIENT_SECRET}`
-  ).toString("base64");
-
-  try {
-    const { data } = await axios.post(
-      "https://accounts.spotify.com/api/token",
-      new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-      }).toString(),
+      new URLSearchParams(body as any).toString(),
       {
         headers: {
           Authorization: `Basic ${base64data}`,
@@ -203,26 +164,39 @@ export const addSongTempos = async (
   total: number,
   accessToken: string
 ) => {
+  const step = 100;
+
   try {
-    for (let j = 0; j <= total + 50; j += 50) {
+    const requests = [];
+    for (let j = 0; j <= total; j += step) {
       const songIds = songs
-        .slice(j, j + 100)
+        .slice(j, j + step)
         .map((track) => track.id)
         .join(",");
 
-      const { data: audioFeatureData } = await axios.get(
-        `https://api.spotify.com/v1/audio-features/?ids=${songIds}`,
-        { headers: buildHeaders(accessToken) }
-      );
-
-      audioFeatureData.audio_features.forEach(
-        (audioFeature: AudioFeature, index: number) => {
-          if (audioFeature && audioFeature.tempo) {
-            songs[j + index].tempo = Math.round(audioFeature.tempo);
-          }
-        }
+      // this call gets overloaded and results in 429 "Too many requests" errors from Spotify, so we need to wrap in a retry helper
+      requests.push(
+        retryHelper(
+          axios.get(
+            `https://api.spotify.com/v1/audio-features/?ids=${songIds}`,
+            {
+              headers: buildHeaders(accessToken),
+            }
+          )
+        )
       );
     }
+
+    const resolvedRequests = await Promise.all(requests);
+
+    const songsWithTempos: Song[] = [];
+    resolvedRequests.forEach((response) => {
+      response?.data.audio_features.forEach(({ id, tempo }: AudioFeature) => {
+        const song = songs.find((s) => s.id === id);
+        songsWithTempos.push({ ...song, tempo: Math.round(tempo) } as Song);
+      });
+    });
+    return songsWithTempos;
   } catch (error: any) {
     console.log("error fetching audio features", error.message);
   }

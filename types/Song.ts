@@ -3,7 +3,7 @@ type Song = {
   uri: string;
   name: string;
   artist: string;
-  tempo?: number;
+  tempo: number;
   isInDestinationPlaylist: boolean;
 };
 

@@ -11,7 +11,11 @@ export type Data = {
 const login = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const { code, redirectUri } = req.body;
 
-  const authInfo = await handleLogin(code, redirectUri);
+  const authInfo = await handleLogin({
+    code,
+    redirect_uri: redirectUri,
+    grant_type: "authorization_code",
+  });
 
   const { accessToken, expiryTime, refreshToken } = authInfo ?? {};
 

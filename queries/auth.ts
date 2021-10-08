@@ -28,8 +28,8 @@ export const useLogin = () => {
       onSettled: () => {
         setLoadingText("");
       },
-      onSuccess: ({ accessToken, expiryTime, refreshToken, userId }) => {
-        setAuthCookies({ accessToken, expiryTime, refreshToken, userId });
+      onSuccess: ({ accessToken, expiryTime, refreshToken }) => {
+        setAuthCookies({ accessToken, expiryTime, refreshToken });
         router.push(process.env.NEXT_PUBLIC_BASE_URL as string);
       },
     }

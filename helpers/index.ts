@@ -5,18 +5,6 @@ export const buildHeaders = (accessToken: string) => {
   return { Authorization: `Bearer ${accessToken}` };
 };
 
-export const addPlaylistStatus = (
-  savedSongs: Song[],
-  destinationSongs: Song[]
-) => {
-  return savedSongs.map((song) => {
-    const isInDestinationPlaylist = Boolean(
-      destinationSongs.find((s) => s.id === song.id)
-    );
-    return { ...song, isInDestinationPlaylist };
-  });
-};
-
 export const extractRelevantFields = (song: SpotifySong) => {
   const { artists, id, name, uri } = song;
 

@@ -7,6 +7,7 @@ import { getAuthCookies } from "../helpers/cookies";
 export const useReloadSavedSongs = () => {
   const { accessTokenCookie } = getAuthCookies();
   const { setLoadingText } = useAppContext();
+  const savedSongsCountQuery = useSavedSongsCount();
 
   return useMutation(
     "reloadSavedSongs",
@@ -26,6 +27,9 @@ export const useReloadSavedSongs = () => {
       onSettled: () => {
         setLoadingText("");
       },
+      onSuccess: () => {
+        savedSongsCountQuery.refetch();
+      },
     }
   );
 };
@@ -34,7 +38,7 @@ export const useSavedSongsCount = () => {
   const { accessTokenCookie } = getAuthCookies();
 
   return useQuery(
-    ["getSavedSongsCount", accessTokenCookie],
+    "getSavedSongsCount",
     async () => {
       const { data } = await axios.get(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/getSavedSongsCount`,
@@ -86,9 +90,9 @@ export const useAddSong = () => {
       return data;
     },
     {
-      onSuccess: () => {
-        getMatchingSongsQuery.refetch();
-      },
+      // onSuccess: () => {
+      //   getMatchingSongsQuery.refetch();
+      // },
     }
   );
 };
@@ -110,9 +114,9 @@ export const useRemoveSong = () => {
       return data;
     },
     {
-      onSuccess: () => {
-        getMatchingSongsQuery.refetch();
-      },
+      // onSuccess: () => {
+      //   getMatchingSongsQuery.refetch();
+      // },
     }
   );
 };

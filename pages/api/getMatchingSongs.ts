@@ -1,16 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import {
-  getDestinationPlaylistId,
-  getFreshPlaylistSongs,
-  getPlaylists,
-  getUserId,
-} from "../../helpers/spotifyHelpers";
 import { connectToDatabase } from "../../util/mongodb";
-import {
-  getDatabaseSavedSongs,
-  updateDatabasePlaylistStatus,
-} from "../../helpers/databaseHelpers";
 import Song from "../../types/Song";
+import fetchAllData from "../../helpers/fetchAllData";
 
 export type Data = { songs: Song[] };
 
@@ -18,42 +9,38 @@ export const getMatchingSongs = async (
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) => {
-  const { accessToken } = req.query;
+  const { accessToken, bpm, start, end } = req.query as {
+    accessToken: string;
+    bpm: string;
+    start: string;
+    end: string;
+  };
 
   const db = await connectToDatabase();
 
-  const playlistsPromise = getPlaylists(accessToken as string);
-  const userIdPromise = getUserId(accessToken as string);
+  const { savedSongs, destinationSongs } = await fetchAllData({
+    db,
+    accessToken,
+    shouldGetFreshSongs: false,
+  });
 
-  const [playlists, userId] = await Promise.all([
-    playlistsPromise,
-    userIdPromise,
-  ]);
+  const matchingTracksWithPlaylistStatus = savedSongs
+    .filter(
+      (song) => song.tempo > Number(bpm) - 5 && song.tempo < Number(bpm) + 5
+    )
+    .map((song) => {
+      const isInDestinationPlaylist = Boolean(
+        destinationSongs?.find((s) => s.id === song.id)
+      );
+      return { ...song, isInDestinationPlaylist } as Song;
+    });
 
-  const destinationPlaylistId = await getDestinationPlaylistId(
-    playlists,
-    userId,
-    accessToken as string
-  );
-
-  const destinationSongs = await getFreshPlaylistSongs(
-    destinationPlaylistId,
-    userId,
-    accessToken as string
-  );
-  await updateDatabasePlaylistStatus(db, destinationSongs);
-
-  const savedSongs = await getDatabaseSavedSongs(db, userId);
-
-  const matchingTracks = savedSongs.filter(
-    (track: any) =>
-      track.tempo > Number(req.query.bpm) - 5 &&
-      track.tempo < Number(req.query.bpm) + 5
-  );
-
-  res
-    .status(200)
-    .send({ songs: matchingTracks.slice(req.query.start, req.query.end) });
+  res.status(200).send({
+    songs: matchingTracksWithPlaylistStatus.slice(
+      parseInt(start),
+      parseInt(end)
+    ),
+  });
 };
 
 export default getMatchingSongs;

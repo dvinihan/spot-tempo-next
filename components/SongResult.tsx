@@ -10,26 +10,32 @@ type Props = {
 };
 
 const SongResult = ({ song }: Props) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const getMatchingSongsQuery = useMatchingSongs();
+  // const [isLoading, setIsLoading] = useState(false);
+  // const getMatchingSongsQuery = useMatchingSongs();
 
   const addSongMutation = useAddSong();
   const removeSongMutation = useRemoveSong();
 
+  const isInDestinationPlaylist = addSongMutation.isSuccess
+    ? true
+    : removeSongMutation.isSuccess
+    ? false
+    : song.isInDestinationPlaylist;
+
+  const mutation = isInDestinationPlaylist
+    ? removeSongMutation
+    : addSongMutation;
+
   // this is needed to prevent lag in color change
-  useEffect(() => {
-    if (!getMatchingSongsQuery.isRefetching) {
-      setIsLoading(false);
-    }
-  }, [getMatchingSongsQuery.isRefetching]);
+  // useEffect(() => {
+  //   if (!getMatchingSongsQuery.isRefetching) {
+  //     setIsLoading(false);
+  //   }
+  // }, [getMatchingSongsQuery.isRefetching]);
 
   const shiftSong = () => {
-    if (!isLoading) {
-      const mutation = song.isInDestinationPlaylist
-        ? removeSongMutation
-        : addSongMutation;
-
-      setIsLoading(true);
+    if (!mutation.isLoading) {
+      // setIsLoading(true);
       mutation.mutate({
         songUri: song.uri,
       });
@@ -47,7 +53,7 @@ const SongResult = ({ song }: Props) => {
         <ButtonBase
           sx={{
             width: "500px",
-            bgcolor: song.isInDestinationPlaylist ? "#358c4e" : "#c8e2ee",
+            bgcolor: isInDestinationPlaylist ? "#358c4e" : "#c8e2ee",
             margin: 1.5,
             padding: 1,
             borderRadius: "20px",
@@ -57,7 +63,7 @@ const SongResult = ({ song }: Props) => {
           <Grid container justifyContent="space-between" alignItems="center">
             <Grid item width={50}>
               <Typography fontSize={70} align="center">
-                {song.isInDestinationPlaylist ? "-" : "+"}
+                {isInDestinationPlaylist ? "-" : "+"}
               </Typography>
             </Grid>
             <Grid item>
@@ -73,7 +79,7 @@ const SongResult = ({ song }: Props) => {
             </Grid>
             <Grid item width={50} />
           </Grid>
-          {isLoading && (
+          {mutation.isLoading && (
             <Box
               sx={{
                 backgroundColor: "rgba(255, 255, 255, 0.8)",
