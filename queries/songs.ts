@@ -76,47 +76,29 @@ export const useMatchingSongs = () => {
 export const useAddSong = () => {
   const { accessTokenCookie } = getAuthCookies();
 
-  const getMatchingSongsQuery = useMatchingSongs();
-
-  return useMutation(
-    async ({ songUri }: { songUri: string }) => {
-      const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/addSong`,
-        {
-          songUri,
-          accessToken: accessTokenCookie,
-        }
-      );
-      return data;
-    },
-    {
-      // onSuccess: () => {
-      //   getMatchingSongsQuery.refetch();
-      // },
-    }
-  );
+  return useMutation(async ({ songUri }: { songUri: string }) => {
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/addSong`,
+      {
+        songUri,
+        accessToken: accessTokenCookie,
+      }
+    );
+    return data;
+  });
 };
 
 export const useRemoveSong = () => {
   const { accessTokenCookie } = getAuthCookies();
 
-  const getMatchingSongsQuery = useMatchingSongs();
-
-  return useMutation(
-    async ({ songUri }: { songUri: string }) => {
-      const { data } = await axios.delete(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/removeSong`,
-        {
-          data: { accessToken: accessTokenCookie },
-          params: { songUri },
-        }
-      );
-      return data;
-    },
-    {
-      // onSuccess: () => {
-      //   getMatchingSongsQuery.refetch();
-      // },
-    }
-  );
+  return useMutation(async ({ songUri }: { songUri: string }) => {
+    const { data } = await axios.delete(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/removeSong`,
+      {
+        data: { accessToken: accessTokenCookie },
+        params: { songUri },
+      }
+    );
+    return data;
+  });
 };

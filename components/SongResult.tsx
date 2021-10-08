@@ -1,6 +1,5 @@
 import { truncate } from "lodash";
-import { useEffect, useState } from "react";
-import { useAddSong, useMatchingSongs, useRemoveSong } from "../queries/songs";
+import { useAddSong, useRemoveSong } from "../queries/songs";
 import Song from "../types/Song";
 import { ButtonBase, CircularProgress, Grid, Typography } from "@mui/material";
 import { Box } from "@mui/system";
@@ -10,9 +9,6 @@ type Props = {
 };
 
 const SongResult = ({ song }: Props) => {
-  // const [isLoading, setIsLoading] = useState(false);
-  // const getMatchingSongsQuery = useMatchingSongs();
-
   const addSongMutation = useAddSong();
   const removeSongMutation = useRemoveSong();
 
@@ -26,16 +22,8 @@ const SongResult = ({ song }: Props) => {
     ? removeSongMutation
     : addSongMutation;
 
-  // this is needed to prevent lag in color change
-  // useEffect(() => {
-  //   if (!getMatchingSongsQuery.isRefetching) {
-  //     setIsLoading(false);
-  //   }
-  // }, [getMatchingSongsQuery.isRefetching]);
-
   const shiftSong = () => {
     if (!mutation.isLoading) {
-      // setIsLoading(true);
       mutation.mutate({
         songUri: song.uri,
       });
