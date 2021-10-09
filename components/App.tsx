@@ -1,18 +1,64 @@
-import Header from "./Header";
-import { Grid } from "@mui/material";
+import { Button, Container, Grid, Typography } from "@mui/material";
 import SongResult from "./SongResult";
 import SearchBar from "./SearchBar";
-import ReloadButton from "./ReloadButton";
-import { useMatchingSongs } from "../queries/songs";
-import Song from "../types/Song";
+import { useMatchingSongs, useReloadSavedSongs } from "../queries/songs";
+import { Song } from "../types/Song";
 import SongCount from "./SongCount";
 import LoadingModal from "./LoadingModal";
-import { useAuth } from "../hooks/useAuth";
+import { useRouter } from "next/dist/client/router";
+import { useEffect } from "react";
+import { useLogin, useRefresh } from "../queries/auth";
+import { getAuthCookies } from "../util/cookies";
+
+const authParams = new URLSearchParams({
+  client_id: process.env.NEXT_PUBLIC_CLIENT_ID || "",
+  response_type: "code",
+  redirect_uri: process.env.NEXT_PUBLIC_BASE_URL || "",
+  scope: [
+    "playlist-read-private",
+    "playlist-modify-private",
+    "playlist-modify-public",
+    "user-library-read",
+  ].join(" "),
+});
 
 export const App = () => {
-  useAuth();
+  const router = useRouter();
+  const { code } = router.query;
 
   const getMatchingSongsQuery = useMatchingSongs();
+  const reloadSavedSongsMutation = useReloadSavedSongs();
+
+  // mutation changes would trigger a useEffect refresh on every render, so we need to isolate the mutate fn only
+  const { mutate: doLogin } = useLogin();
+  const { mutate: doRefresh } = useRefresh();
+
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    if (code) {
+      doLogin({ code: code as string });
+      return;
+    }
+
+    const { accessTokenCookie, expiryTimeCookie, refreshTokenCookie } =
+      getAuthCookies();
+
+    const isExpired = expiryTimeCookie
+      ? Date.now() > parseInt(expiryTimeCookie)
+      : true;
+
+    if (accessTokenCookie && refreshTokenCookie && isExpired) {
+      doRefresh({ refreshToken: refreshTokenCookie });
+      return;
+    }
+
+    if (!accessTokenCookie) {
+      router.push(
+        "https://accounts.spotify.com/authorize?".concat(authParams.toString())
+      );
+    }
+  }, [code, doLogin, doRefresh, router]);
 
   return (
     <>
@@ -24,13 +70,32 @@ export const App = () => {
         alignItems="center"
       >
         <Grid item>
-          <Header />
+          <Container>
+            <Typography align="center" sx={{ fontSize: 30 }}>
+              Spotify BPM Picker
+            </Typography>
+            <Typography align="center" sx={{ fontSize: 16 }}>
+              This app will allow you to search for songs by BPM in your Liked
+              Songs, and add them to your &quot;SpotTempo&quot; playlist.
+            </Typography>
+          </Container>
         </Grid>
         <Grid item>
           <SongCount />
         </Grid>
         <Grid item>
-          <ReloadButton />
+          <Button
+            onClick={() => reloadSavedSongsMutation.mutate()}
+            sx={{
+              color: "black",
+              bgcolor: "lightblue",
+              ":hover": {
+                bgcolor: "white",
+              },
+            }}
+          >
+            Reload saved songs
+          </Button>
         </Grid>
         <Grid item>
           <SearchBar />

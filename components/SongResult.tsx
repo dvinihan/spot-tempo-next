@@ -1,31 +1,30 @@
 import { truncate } from "lodash";
-import { useAddSong, useRemoveSong } from "../queries/songs";
-import Song from "../types/Song";
+import { addOrRemoveSong } from "../queries/songs";
+import { Song } from "../types/Song";
 import { ButtonBase, CircularProgress, Grid, Typography } from "@mui/material";
 import { Box } from "@mui/system";
+import { getAuthCookies } from "../util/cookies";
+import { useMutation } from "react-query";
+import { ADD, REMOVE } from "../constants";
 
 type Props = {
   song: Song;
 };
 
 const SongResult = ({ song }: Props) => {
-  const addSongMutation = useAddSong();
-  const removeSongMutation = useRemoveSong();
+  const { accessTokenCookie } = getAuthCookies();
 
-  const isInDestinationPlaylist = addSongMutation.isSuccess
-    ? true
-    : removeSongMutation.isSuccess
-    ? false
-    : song.isInDestinationPlaylist;
+  const { data, isLoading, mutate } = useMutation(addOrRemoveSong);
 
-  const mutation = isInDestinationPlaylist
-    ? removeSongMutation
-    : addSongMutation;
+  const isInPlaylist =
+    data?.isInDestinationPlaylist ?? song.isInDestinationPlaylist;
 
   const shiftSong = () => {
-    if (!mutation.isLoading) {
-      mutation.mutate({
+    if (!isLoading) {
+      mutate({
         songUri: song.uri,
+        accessTokenCookie,
+        action: isInPlaylist ? REMOVE : ADD,
       });
     }
   };
@@ -41,7 +40,7 @@ const SongResult = ({ song }: Props) => {
         <ButtonBase
           sx={{
             width: "500px",
-            bgcolor: isInDestinationPlaylist ? "#358c4e" : "#c8e2ee",
+            bgcolor: isInPlaylist ? "#358c4e" : "#c8e2ee",
             margin: 1.5,
             padding: 1,
             borderRadius: "20px",
@@ -51,7 +50,7 @@ const SongResult = ({ song }: Props) => {
           <Grid container justifyContent="space-between" alignItems="center">
             <Grid item width={50}>
               <Typography fontSize={70} align="center">
-                {isInDestinationPlaylist ? "-" : "+"}
+                {isInPlaylist ? "-" : "+"}
               </Typography>
             </Grid>
             <Grid item>
@@ -67,7 +66,7 @@ const SongResult = ({ song }: Props) => {
             </Grid>
             <Grid item width={50} />
           </Grid>
-          {mutation.isLoading && (
+          {isLoading && (
             <Box
               sx={{
                 backgroundColor: "rgba(255, 255, 255, 0.8)",

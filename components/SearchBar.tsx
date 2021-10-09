@@ -4,11 +4,11 @@ import { useAppContext } from "../context/appContext";
 import { SEARCH_LOADING_TEXT } from "../constants";
 
 const SearchBar = () => {
-  const { setBpm, setLoadingText } = useAppContext();
+  const { bpm, setBpm, setLoadingText } = useAppContext();
 
   const getMatchingSongsQuery = useMatchingSongs();
 
-  const handleChange = (e: any) => setBpm(parseInt(e.target.value));
+  const handleChange = (e: any) => setBpm(e.target.value);
 
   const handleSearch = () => {
     setLoadingText(SEARCH_LOADING_TEXT);
@@ -17,7 +17,12 @@ const SearchBar = () => {
 
   return (
     <>
-      <Input onChange={handleChange} placeholder="BPM" type="number" />
+      <Input
+        onChange={handleChange}
+        placeholder="BPM"
+        type="number"
+        value={bpm}
+      />
       <Button
         onClick={handleSearch}
         sx={{

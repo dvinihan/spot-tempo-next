@@ -1,14 +1,14 @@
 import { createContext, useContext, useState } from "react";
 
 type ContextProps = {
-  bpm: number | undefined;
-  setBpm: (bpm: number) => void;
+  bpm: string;
+  setBpm: (bpm: string) => void;
   loadingText: string;
   setLoadingText: (text: string) => void;
 };
 
 export const AppContextProvider = ({ children }: { children: any }) => {
-  const [bpm, setBpm] = useState<number | undefined>();
+  const [bpm, setBpm] = useState<string>("");
   const [loadingText, setLoadingText] = useState<string>("");
 
   return (

@@ -1,4 +1,6 @@
-type Song = {
+import { ADD, REMOVE } from "../constants/index";
+
+export type Song = {
   id: string;
   uri: string;
   name: string;
@@ -7,4 +9,4 @@ type Song = {
   isInDestinationPlaylist: boolean;
 };
 
-export default Song;
+export type SongAction = typeof ADD | typeof REMOVE;

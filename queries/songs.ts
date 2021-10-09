@@ -2,6 +2,7 @@ import axios from "axios";
 import { useMutation, useQuery } from "react-query";
 import { SAVED_SONGS_LOADING_TEXT } from "../constants";
 import { useAppContext } from "../context/appContext";
+import { SongAction } from "../types/Song";
 import { getAuthCookies } from "../util/cookies";
 
 export const useReloadSavedSongs = () => {
@@ -10,7 +11,6 @@ export const useReloadSavedSongs = () => {
   const savedSongsCountQuery = useSavedSongsCount();
 
   return useMutation(
-    "reloadSavedSongs",
     async () => {
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/reload`,
@@ -73,32 +73,22 @@ export const useMatchingSongs = () => {
   );
 };
 
-export const useAddSong = () => {
-  const { accessTokenCookie } = getAuthCookies();
-
-  return useMutation(async ({ songUri }: { songUri: string }) => {
-    const { data } = await axios.post(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/addSong`,
-      {
-        songUri,
-        accessToken: accessTokenCookie,
-      }
-    );
-    return data;
-  });
-};
-
-export const useRemoveSong = () => {
-  const { accessTokenCookie } = getAuthCookies();
-
-  return useMutation(async ({ songUri }: { songUri: string }) => {
-    const { data } = await axios.delete(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/removeSong`,
-      {
-        data: { accessToken: accessTokenCookie },
-        params: { songUri },
-      }
-    );
-    return data;
-  });
+export const addOrRemoveSong = async ({
+  songUri,
+  accessTokenCookie,
+  action,
+}: {
+  songUri: string;
+  accessTokenCookie?: string;
+  action: SongAction;
+}) => {
+  const { data } = await axios.post(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/addOrRemoveSong`,
+    {
+      songUri,
+      accessToken: accessTokenCookie,
+      action,
+    }
+  );
+  return data;
 };

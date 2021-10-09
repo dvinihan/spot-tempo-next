@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "../../util/mongodb";
-import Song from "../../types/Song";
+import { Song } from "../../types/Song";
 import fetchAllData from "../../serverHelpers/fetchAllData";
 import { addRetryHandler } from "../../util/axios";
 

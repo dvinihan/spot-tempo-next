@@ -25,9 +25,8 @@ const getSavedSongsCount = async (
   }
 
   const savedSongs = await getDatabaseSavedSongs(db, userId);
-  const count = savedSongs.length;
 
-  return res.status(200).send({ count });
+  return res.status(200).send({ count: savedSongs.length });
 };
 
 export default getSavedSongsCount;
