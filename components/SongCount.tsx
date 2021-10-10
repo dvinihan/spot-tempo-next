@@ -1,22 +1,23 @@
 import { CircularProgress, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useSavedSongsCount } from "../queries/songs";
+import { useAppContext } from "../context/appContext";
 
 const SongCount = () => {
-  const { refetch, isFetching, data } = useSavedSongsCount();
+  const { savedSongsCountMutation } = useAppContext();
+  const { mutate, isLoading, data } = savedSongsCountMutation;
 
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    refetch();
-  }, [refetch]);
+    mutate();
+  }, [mutate]);
 
   if (!isMounted) {
     return null;
   }
 
-  return isFetching ? (
+  return isLoading ? (
     <CircularProgress />
   ) : (
     <Typography align="center" sx={{ fontWeight: 500 }}>

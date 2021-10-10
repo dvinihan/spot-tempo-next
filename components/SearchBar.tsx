@@ -1,16 +1,23 @@
-import { useMatchingSongs } from "../queries/songs";
 import { Button, Input, Typography } from "@mui/material";
 import { useState } from "react";
+import { UseMutateFunction } from "react-query";
 
-const SearchBar = () => {
+type Props = {
+  doMatchingSongsMutation: UseMutateFunction<
+    any,
+    unknown,
+    { bpm: string },
+    unknown
+  >;
+};
+
+const SearchBar = ({ doMatchingSongsMutation }: Props) => {
   const [bpm, setBpm] = useState<string>("");
-
-  const getMatchingSongsQuery = useMatchingSongs(bpm);
 
   const handleChange = (e: any) => setBpm(e.target.value);
 
   const handleSearch = () => {
-    getMatchingSongsQuery.refetch();
+    doMatchingSongsMutation({ bpm });
   };
 
   const onKeyPress = (e: any) => {

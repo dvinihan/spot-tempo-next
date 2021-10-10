@@ -1,7 +1,6 @@
 import { Button, Container, Grid, Typography } from "@mui/material";
 import SongResult from "./SongResult";
 import SearchBar from "./SearchBar";
-import { useMatchingSongs } from "../queries/songs";
 import { Song } from "../types/Song";
 import SongCount from "./SongCount";
 import LoadingModal from "./LoadingModal";
@@ -26,14 +25,15 @@ export const App = () => {
   const router = useRouter();
   const { code } = router.query;
 
-  const { loginMutation, refreshMutation, reloadSavedSongsMutation } =
-    useAppContext();
-
+  const {
+    matchingSongsMutation,
+    loginMutation,
+    refreshMutation,
+    reloadSavedSongsMutation,
+  } = useAppContext();
   // mutation changes would trigger a useEffect refresh on every render, so we need to isolate the mutate fn only
   const { mutate: doLogin } = loginMutation;
   const { mutate: doRefresh } = refreshMutation;
-
-  const getMatchingSongsQuery = useMatchingSongs();
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -100,17 +100,19 @@ export const App = () => {
           </Button>
         </Grid>
         <Grid item>
-          <SearchBar />
+          <SearchBar doMatchingSongsMutation={matchingSongsMutation.mutate} />
         </Grid>
-        {getMatchingSongsQuery.isSuccess && (
+        {matchingSongsMutation.isSuccess && (
           <Grid item>
-            {getMatchingSongsQuery.data?.map((song: Song) => (
+            {matchingSongsMutation.data?.map((song: Song) => (
               <SongResult key={song.id} song={song} />
             ))}
           </Grid>
         )}
       </Grid>
-      <LoadingModal />
+      <LoadingModal
+        isMatchingSongsMutationLoading={matchingSongsMutation.isLoading}
+      />
     </>
   );
 };

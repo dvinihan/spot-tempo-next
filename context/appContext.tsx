@@ -2,11 +2,22 @@ import { useRouter } from "next/dist/client/router";
 import { createContext, useContext } from "react";
 import { useMutation, UseMutationResult } from "react-query";
 import { login, refresh } from "../mutationFunctions/auth";
-import { reloadSavedSongs } from "../mutationFunctions/songs";
-import { useSavedSongsCount } from "../queries/songs";
+import {
+  getMatchingSongs,
+  getSavedSongsCount,
+  reloadSavedSongs,
+} from "../mutationFunctions/songs";
 import { getAuthCookies, setAuthCookies } from "../util/cookies";
 
 type ContextProps = {
+  matchingSongsMutation: UseMutationResult<
+    any,
+    unknown,
+    { bpm: string },
+    unknown
+  >;
+  savedSongsCountMutation: UseMutationResult<any, unknown, void, unknown>;
+  reloadSavedSongsMutation: UseMutationResult<any, unknown, void, unknown>;
   loginMutation: UseMutationResult<any, unknown, { code: string }, unknown>;
   refreshMutation: UseMutationResult<
     any,
@@ -14,13 +25,19 @@ type ContextProps = {
     { refreshToken: string },
     unknown
   >;
-  reloadSavedSongsMutation: UseMutationResult<any, unknown, void, unknown>;
 };
 
 export const AppContextProvider = ({ children }: { children: any }) => {
   const router = useRouter();
-  const savedSongsCountQuery = useSavedSongsCount();
   const { accessTokenCookie } = getAuthCookies();
+
+  const matchingSongsMutation = useMutation(({ bpm }: { bpm: string }) =>
+    getMatchingSongs({ bpm, accessTokenCookie })
+  );
+
+  const savedSongsCountMutation = useMutation(() =>
+    getSavedSongsCount({ accessTokenCookie })
+  );
 
   const loginMutation = useMutation(login, {
     onSuccess: ({ accessToken, expiryTime, refreshToken }) => {
@@ -36,10 +53,10 @@ export const AppContextProvider = ({ children }: { children: any }) => {
   });
 
   const reloadSavedSongsMutation = useMutation(
-    () => reloadSavedSongs(accessTokenCookie),
+    () => reloadSavedSongs({ accessTokenCookie }),
     {
       onSuccess: () => {
-        savedSongsCountQuery.refetch();
+        savedSongsCountMutation.mutate();
       },
     }
   );
@@ -47,9 +64,11 @@ export const AppContextProvider = ({ children }: { children: any }) => {
   return (
     <AppContext.Provider
       value={{
+        matchingSongsMutation,
+        savedSongsCountMutation,
+        reloadSavedSongsMutation,
         loginMutation,
         refreshMutation,
-        reloadSavedSongsMutation,
       }}
     >
       {children}

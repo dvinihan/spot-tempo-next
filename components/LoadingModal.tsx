@@ -5,15 +5,16 @@ import {
   SEARCH_LOADING_TEXT,
 } from "../constants";
 import { useAppContext } from "../context/appContext";
-import { useMatchingSongs } from "../queries/songs";
 
-const LoadingModal = () => {
+type Props = {
+  isMatchingSongsMutationLoading: boolean;
+};
+
+const LoadingModal = ({ isMatchingSongsMutationLoading }: Props) => {
   const { loginMutation, refreshMutation, reloadSavedSongsMutation } =
     useAppContext();
 
-  const getMatchingSongsQuery = useMatchingSongs();
-
-  const loadingText = getMatchingSongsQuery.isFetching
+  const loadingText = isMatchingSongsMutationLoading
     ? SEARCH_LOADING_TEXT
     : loginMutation.isLoading || refreshMutation.isLoading
     ? AUTH_LOADING_TEXT
