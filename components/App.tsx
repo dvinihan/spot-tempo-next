@@ -35,6 +35,8 @@ export const App = () => {
   const { mutate: doLogin } = loginMutation;
   const { mutate: doRefresh } = refreshMutation;
 
+  const handleReload = () => reloadSavedSongsMutation.mutate();
+
   useEffect(() => {
     if (!router.isReady) return;
 
@@ -87,7 +89,7 @@ export const App = () => {
         </Grid>
         <Grid item>
           <Button
-            onClick={() => reloadSavedSongsMutation.mutate()}
+            onClick={handleReload}
             sx={{
               color: "black",
               bgcolor: "lightblue",
@@ -100,7 +102,7 @@ export const App = () => {
           </Button>
         </Grid>
         <Grid item>
-          <SearchBar doMatchingSongsMutation={matchingSongsMutation.mutate} />
+          <SearchBar />
         </Grid>
         {matchingSongsMutation.isSuccess && (
           <Grid item>
@@ -110,9 +112,7 @@ export const App = () => {
           </Grid>
         )}
       </Grid>
-      <LoadingModal
-        isMatchingSongsMutationLoading={matchingSongsMutation.isLoading}
-      />
+      <LoadingModal />
     </>
   );
 };

@@ -6,15 +6,15 @@ import {
 } from "../constants";
 import { useAppContext } from "../context/appContext";
 
-type Props = {
-  isMatchingSongsMutationLoading: boolean;
-};
+const LoadingModal = () => {
+  const {
+    matchingSongsMutation,
+    loginMutation,
+    refreshMutation,
+    reloadSavedSongsMutation,
+  } = useAppContext();
 
-const LoadingModal = ({ isMatchingSongsMutationLoading }: Props) => {
-  const { loginMutation, refreshMutation, reloadSavedSongsMutation } =
-    useAppContext();
-
-  const loadingText = isMatchingSongsMutationLoading
+  const loadingText = matchingSongsMutation.isLoading
     ? SEARCH_LOADING_TEXT
     : loginMutation.isLoading || refreshMutation.isLoading
     ? AUTH_LOADING_TEXT

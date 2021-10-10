@@ -31,6 +31,7 @@ export const AppContextProvider = ({ children }: { children: any }) => {
   const router = useRouter();
   const { accessTokenCookie } = getAuthCookies();
 
+  // Even though some of these are GET calls, things work better when they are mutations because I don't need constant refreshes in the background
   const matchingSongsMutation = useMutation(({ bpm }: { bpm: string }) =>
     getMatchingSongs({ bpm, accessTokenCookie })
   );
