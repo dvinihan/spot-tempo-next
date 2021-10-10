@@ -1,11 +1,11 @@
 import { truncate } from "lodash";
-import { addOrRemoveSong } from "../queries/songs";
 import { Song } from "../types/Song";
 import { ButtonBase, CircularProgress, Grid, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { getAuthCookies } from "../util/cookies";
 import { useMutation } from "react-query";
 import { ADD, REMOVE } from "../constants";
+import { addOrRemoveSong } from "../mutationFunctions/songs";
 
 type Props = {
   song: Song;
@@ -36,31 +36,32 @@ const SongResult = ({ song }: Props) => {
 
   return (
     <Grid container justifyContent="center" alignItems="center">
-      <Grid item>
+      <Grid item width="100%">
         <ButtonBase
           sx={{
-            width: "500px",
+            width: "100%",
             bgcolor: isInPlaylist ? "#358c4e" : "#c8e2ee",
-            margin: 1.5,
+            marginTop: 1.5,
+            marginBottom: 1.5,
             padding: 1,
             borderRadius: "20px",
           }}
-          onClick={() => shiftSong()}
+          onClick={shiftSong}
         >
           <Grid container justifyContent="space-between" alignItems="center">
             <Grid item width={50}>
-              <Typography fontSize={70} align="center">
+              <Typography fontSize={60} align="center">
                 {isInPlaylist ? "-" : "+"}
               </Typography>
             </Grid>
             <Grid item>
-              <Typography align="center" fontSize={20} fontWeight={600}>
+              <Typography align="center" fontSize={17} fontWeight={600}>
                 {truncatedSongName}
               </Typography>
-              <Typography align="center" fontSize={20}>
+              <Typography align="center" fontSize={17}>
                 {truncatedArtistName}
               </Typography>
-              <Typography align="center" fontSize={20}>
+              <Typography align="center" fontSize={17}>
                 {song.tempo} BPM
               </Typography>
             </Grid>

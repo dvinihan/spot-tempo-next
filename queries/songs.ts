@@ -1,38 +1,7 @@
 import axios from "axios";
-import { useMutation, useQuery } from "react-query";
-import { SAVED_SONGS_LOADING_TEXT } from "../constants";
+import { useQuery } from "react-query";
 import { useAppContext } from "../context/appContext";
-import { SongAction } from "../types/Song";
 import { getAuthCookies } from "../util/cookies";
-
-export const useReloadSavedSongs = () => {
-  const { accessTokenCookie } = getAuthCookies();
-  const { setLoadingText } = useAppContext();
-  const savedSongsCountQuery = useSavedSongsCount();
-
-  return useMutation(
-    async () => {
-      const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/reload`,
-        {
-          accessToken: accessTokenCookie,
-        }
-      );
-      return data;
-    },
-    {
-      onMutate: () => {
-        setLoadingText(SAVED_SONGS_LOADING_TEXT);
-      },
-      onSettled: () => {
-        setLoadingText("");
-      },
-      onSuccess: () => {
-        savedSongsCountQuery.refetch();
-      },
-    }
-  );
-};
 
 export const useSavedSongsCount = () => {
   const { accessTokenCookie } = getAuthCookies();
@@ -50,9 +19,8 @@ export const useSavedSongsCount = () => {
   );
 };
 
-export const useMatchingSongs = () => {
+export const useMatchingSongs = (bpm?: string) => {
   const { accessTokenCookie } = getAuthCookies();
-  const { bpm, setLoadingText } = useAppContext();
 
   return useQuery(
     "getMatchingSongs",
@@ -66,29 +34,6 @@ export const useMatchingSongs = () => {
     // rely only on manual freshes
     {
       enabled: false,
-      onSettled: () => {
-        setLoadingText("");
-      },
     }
   );
-};
-
-export const addOrRemoveSong = async ({
-  songUri,
-  accessTokenCookie,
-  action,
-}: {
-  songUri: string;
-  accessTokenCookie?: string;
-  action: SongAction;
-}) => {
-  const { data } = await axios.post(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/addOrRemoveSong`,
-    {
-      songUri,
-      accessToken: accessTokenCookie,
-      action,
-    }
-  );
-  return data;
 };

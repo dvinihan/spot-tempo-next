@@ -1,24 +1,29 @@
 import { useMatchingSongs } from "../queries/songs";
 import { Button, Input, Typography } from "@mui/material";
-import { useAppContext } from "../context/appContext";
-import { SEARCH_LOADING_TEXT } from "../constants";
+import { useState } from "react";
 
 const SearchBar = () => {
-  const { bpm, setBpm, setLoadingText } = useAppContext();
+  const [bpm, setBpm] = useState<string>("");
 
-  const getMatchingSongsQuery = useMatchingSongs();
+  const getMatchingSongsQuery = useMatchingSongs(bpm);
 
   const handleChange = (e: any) => setBpm(e.target.value);
 
   const handleSearch = () => {
-    setLoadingText(SEARCH_LOADING_TEXT);
     getMatchingSongsQuery.refetch();
+  };
+
+  const onKeyPress = (e: any) => {
+    if (e.key == "Enter") {
+      handleSearch();
+    }
   };
 
   return (
     <>
       <Input
         onChange={handleChange}
+        onKeyPress={onKeyPress}
         placeholder="BPM"
         type="number"
         value={bpm}

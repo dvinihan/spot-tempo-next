@@ -1,8 +1,25 @@
 import { Grid, Modal, Paper } from "@mui/material";
+import {
+  AUTH_LOADING_TEXT,
+  SAVED_SONGS_LOADING_TEXT,
+  SEARCH_LOADING_TEXT,
+} from "../constants";
 import { useAppContext } from "../context/appContext";
+import { useMatchingSongs } from "../queries/songs";
 
 const LoadingModal = () => {
-  const { loadingText } = useAppContext();
+  const { loginMutation, refreshMutation, reloadSavedSongsMutation } =
+    useAppContext();
+
+  const getMatchingSongsQuery = useMatchingSongs();
+
+  const loadingText = getMatchingSongsQuery.isFetching
+    ? SEARCH_LOADING_TEXT
+    : loginMutation.isLoading || refreshMutation.isLoading
+    ? AUTH_LOADING_TEXT
+    : reloadSavedSongsMutation.isLoading
+    ? SAVED_SONGS_LOADING_TEXT
+    : "";
 
   return (
     <Modal open={Boolean(loadingText)}>

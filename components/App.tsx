@@ -1,14 +1,14 @@
 import { Button, Container, Grid, Typography } from "@mui/material";
 import SongResult from "./SongResult";
 import SearchBar from "./SearchBar";
-import { useMatchingSongs, useReloadSavedSongs } from "../queries/songs";
+import { useMatchingSongs } from "../queries/songs";
 import { Song } from "../types/Song";
 import SongCount from "./SongCount";
 import LoadingModal from "./LoadingModal";
 import { useRouter } from "next/dist/client/router";
 import { useEffect } from "react";
-import { useLogin, useRefresh } from "../queries/auth";
 import { getAuthCookies } from "../util/cookies";
+import { useAppContext } from "../context/appContext";
 
 const authParams = new URLSearchParams({
   client_id: process.env.NEXT_PUBLIC_CLIENT_ID || "",
@@ -26,12 +26,14 @@ export const App = () => {
   const router = useRouter();
   const { code } = router.query;
 
-  const getMatchingSongsQuery = useMatchingSongs();
-  const reloadSavedSongsMutation = useReloadSavedSongs();
+  const { loginMutation, refreshMutation, reloadSavedSongsMutation } =
+    useAppContext();
 
   // mutation changes would trigger a useEffect refresh on every render, so we need to isolate the mutate fn only
-  const { mutate: doLogin } = useLogin();
-  const { mutate: doRefresh } = useRefresh();
+  const { mutate: doLogin } = loginMutation;
+  const { mutate: doRefresh } = refreshMutation;
+
+  const getMatchingSongsQuery = useMatchingSongs();
 
   useEffect(() => {
     if (!router.isReady) return;
