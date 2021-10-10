@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { useAppContext } from "../context/appContext";
 import { getAuthCookies } from "../util/cookies";
 
 export const useSavedSongsCount = () => {
@@ -15,7 +14,8 @@ export const useSavedSongsCount = () => {
       );
       return data;
     },
-    { enabled: Boolean(accessTokenCookie) }
+    // rely only on manual freshes
+    { enabled: false }
   );
 };
 
