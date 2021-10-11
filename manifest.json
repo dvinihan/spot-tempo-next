@@ -1,0 +1,21 @@
+{
+  "name": "SpotTempo",
+  "short_name": "SpotTempo",
+  "start_url": "index.html",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "green_s_icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "green_s_icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#cdedcc",
+  "background_color": "#cdedcc",
+  "display": "standalone"
+}
