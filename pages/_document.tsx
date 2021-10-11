@@ -13,6 +13,7 @@ export default class MyDocument extends Document {
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
           />
           <link rel="manifest" href="manifest.json" />
+          <meta name="theme-color" content={BACKGROUND_COLOR} />
         </Head>
         <body style={{ backgroundColor: BACKGROUND_COLOR }}>
           <Main />
