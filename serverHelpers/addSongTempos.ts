@@ -1,5 +1,5 @@
 import axios from "axios";
-import Song from "../types/Song";
+import { Song } from "../types/Song";
 import { AudioFeature } from "../types/SpotifyTypes";
 import { buildHeaders } from "../util/headers";
 

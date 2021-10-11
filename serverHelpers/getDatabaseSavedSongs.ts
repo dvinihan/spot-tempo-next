@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import Song from "../types/Song";
+import { Song } from "../types/Song";
 
 const getDatabaseSavedSongs = async (
   db: Db,
