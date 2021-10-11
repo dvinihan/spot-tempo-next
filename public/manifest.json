@@ -1,7 +1,7 @@
 {
   "name": "SpotTempo",
   "short_name": "SpotTempo",
-  "start_url": "",
+  "start_url": "/",
   "scope": "./",
   "icons": [
     {
