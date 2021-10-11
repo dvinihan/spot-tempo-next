@@ -6,6 +6,10 @@ export const getSavedSongsCount = async ({
 }: {
   accessTokenCookie?: string;
 }) => {
+  if (!accessTokenCookie) {
+    return;
+  }
+
   const { data } = await axios.get(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/getSavedSongsCount`,
     { params: { accessToken: accessTokenCookie } }
