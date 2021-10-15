@@ -6,7 +6,7 @@ import SongCount from "./SongCount";
 import LoadingModal from "./LoadingModal";
 import { useRouter } from "next/dist/client/router";
 import { useEffect } from "react";
-import { getAuthCookies } from "../util/cookies";
+import { getAuthCookies, getIsAccessTokenExpired } from "../util/cookies";
 import { useAppContext } from "../context/appContext";
 
 const authParams = new URLSearchParams({
@@ -48,9 +48,7 @@ export const App = () => {
     const { accessTokenCookie, expiryTimeCookie, refreshTokenCookie } =
       getAuthCookies();
 
-    const isExpired = expiryTimeCookie
-      ? Date.now() > parseInt(expiryTimeCookie)
-      : true;
+    const isExpired = getIsAccessTokenExpired(expiryTimeCookie);
 
     if (accessTokenCookie && refreshTokenCookie && isExpired) {
       doRefresh({ refreshToken: refreshTokenCookie });

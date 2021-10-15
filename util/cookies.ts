@@ -32,3 +32,7 @@ export const setAuthCookies = ({
   expiryTime && cookieCutter.set(EXPIRY_TIME_COOKIE, expiryTime);
   refreshToken && cookieCutter.set(REFRESH_TOKEN_COOKIE, refreshToken);
 };
+
+export const getIsAccessTokenExpired = (expiryTimeCookie?: string) => {
+  return expiryTimeCookie ? Date.now() > parseInt(expiryTimeCookie) : true;
+};
