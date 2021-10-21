@@ -3,8 +3,8 @@ import { connectToDatabase } from "../../util/mongodb";
 import { Song } from "../../types/Song";
 import { addRetryHandler } from "../../util/axios";
 import { ListType } from "../../constants";
-import fetchAllDatabaseSongs from "../../serverHelpers/fetchAllDatabaseSongs";
-import getUserId from "../../serverHelpers/getUserId";
+import { fetchAllDatabaseSongs } from "../../serverHelpers/fetchAllDatabaseSongs";
+import { getUserId } from "../../serverHelpers/getUserId";
 
 export type Data = { songs: Song[] };
 
@@ -22,14 +22,13 @@ export const getMatchingSongs = async (
     listType: ListType;
   };
 
-  const db = await connectToDatabase();
-
   const userId = await getUserId(accessToken as string);
 
   if (userId instanceof Error) {
     return res.status(500).send(userId);
   }
 
+  const db = await connectToDatabase();
   const allDatabaseSongs = await fetchAllDatabaseSongs(db, userId);
 
   if (allDatabaseSongs instanceof Error) {
@@ -49,12 +48,10 @@ export const getMatchingSongs = async (
       ? (song: Song) => song.isDisliked
       : () => {};
 
-  const songList = allDatabaseSongs
-    .filter(filterFn)
-    .slice(parseInt(start), parseInt(end));
-
   return res.status(200).send({
-    songs: songList,
+    songs: allDatabaseSongs
+      .filter(filterFn)
+      .slice(parseInt(start), parseInt(end)),
   });
 };
 

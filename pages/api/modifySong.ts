@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import { addRetryHandler } from "../../util/axios";
-import getPlaylistAndUserId from "../../serverHelpers/getPlaylistAndUserId";
+import { getDestinationPlaylistId } from "../../serverHelpers/getDestinationPlaylistId";
 import { buildHeaders } from "../../util/headers";
 import { connectToDatabase } from "../../util/mongodb";
 import { SongAction } from "../../constants";
+import { getUserId } from "../../serverHelpers/getUserId";
 
 export type Data = { isInPlaylist?: boolean; isDisliked?: boolean };
 
@@ -20,15 +21,17 @@ const modifySong = async (
     action: SongAction;
   };
 
-  const ids = await getPlaylistAndUserId(accessToken);
+  const userId = await getUserId(accessToken);
 
-  if (ids instanceof Error) {
-    return res.status(500).send(ids);
+  if (userId instanceof Error) {
+    return res.status(500).send(userId);
   }
 
-  const { playlistId, userId } = ids;
+  const playlistId = await getDestinationPlaylistId(accessToken, userId);
 
-  let returnValues;
+  if (playlistId instanceof Error) {
+    return res.status(500).send(playlistId);
+  }
 
   const removeSong = async () => {
     await axios({
@@ -41,6 +44,7 @@ const modifySong = async (
     });
   };
 
+  let returnValues;
   try {
     switch (action) {
       case SongAction.ADD: {

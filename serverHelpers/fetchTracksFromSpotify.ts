@@ -2,9 +2,9 @@ import axios from "axios";
 import { Song } from "../types/Song";
 import { SpotifySong } from "../types/SpotifyTypes";
 import { buildHeaders } from "../util/headers";
-import addSongTempos from "./addSongTempos";
+import { addSongTempos } from "./addSongTempos";
 
-const fetchTracksFromSpotify = async ({
+export const fetchTracksFromSpotify = async ({
   tracksUrl,
   accessToken,
 }: {
@@ -67,5 +67,3 @@ const extractRelevantFields = (song: SpotifySong) => {
 
   return { artist: artistNameString, id, name, uri } as Song;
 };
-
-export default fetchTracksFromSpotify;

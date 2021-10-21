@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import getUserId from "../../serverHelpers/getUserId";
-import handleLogin from "../../serverHelpers/handleLogin";
+import { getUserId } from "../../serverHelpers/getUserId";
+import { handleLogin } from "../../serverHelpers/handleLogin";
 import { addRetryHandler } from "../../util/axios";
 
 export type Data = {

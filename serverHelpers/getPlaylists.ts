@@ -2,7 +2,7 @@ import axios from "axios";
 import { SpotifyPlaylist } from "../types/SpotifyTypes";
 import { buildHeaders } from "../util/headers";
 
-const getPlaylists = async (
+export const getPlaylists = async (
   accessToken: string
 ): Promise<SpotifyPlaylist[] | Error> => {
   try {
@@ -17,5 +17,3 @@ const getPlaylists = async (
     return new Error(`error fetching playlists: ${error.message}`);
   }
 };
-
-export default getPlaylists;

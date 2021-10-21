@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "../../util/mongodb";
 import { addRetryHandler } from "../../util/axios";
-import getUserId from "../../serverHelpers/getUserId";
+import { getUserId } from "../../serverHelpers/getUserId";
 import { Song } from "../../types/Song";
 import { ListType } from "../../constants";
-import fetchAllDatabaseSongs from "../../serverHelpers/fetchAllDatabaseSongs";
+import { fetchAllDatabaseSongs } from "../../serverHelpers/fetchAllDatabaseSongs";
 
 export type Data = {
   count: number;
@@ -20,7 +20,6 @@ const getSongCount = async (
     accessToken: string;
     listType: ListType;
   };
-  const db = await connectToDatabase();
 
   const userId = await getUserId(accessToken as string);
 
@@ -28,6 +27,7 @@ const getSongCount = async (
     return res.status(500).send(userId);
   }
 
+  const db = await connectToDatabase();
   const allDatabaseSongs = await fetchAllDatabaseSongs(db, userId);
 
   if (allDatabaseSongs instanceof Error) {
@@ -43,9 +43,9 @@ const getSongCount = async (
       ? (song: Song) => song.isDisliked
       : () => {};
 
-  const songList = allDatabaseSongs.filter(filterFn);
-
-  return res.status(200).send({ count: songList.length });
+  return res
+    .status(200)
+    .send({ count: allDatabaseSongs.filter(filterFn).length });
 };
 
 export default getSongCount;

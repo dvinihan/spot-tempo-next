@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import handleLogin from "../../serverHelpers/handleLogin";
+import { handleLogin } from "../../serverHelpers/handleLogin";
 import { addRetryHandler } from "../../util/axios";
 
 export type Data = {
@@ -25,13 +25,7 @@ const refreshAuth = async (
     return res.status(500).send(authInfo);
   }
 
-  const { accessToken, expiryTime, refreshToken: newRefreshToken } = authInfo;
-
-  return res.status(200).send({
-    accessToken,
-    expiryTime,
-    refreshToken: newRefreshToken,
-  });
+  return res.status(200).send(authInfo);
 };
 
 export default refreshAuth;

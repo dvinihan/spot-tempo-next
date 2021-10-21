@@ -3,7 +3,7 @@ import { Song } from "../types/Song";
 import { AudioFeature } from "../types/SpotifyTypes";
 import { buildHeaders } from "../util/headers";
 
-const addSongTempos = async (
+export const addSongTempos = async (
   songs: Song[],
   total: number,
   accessToken: string
@@ -39,5 +39,3 @@ const addSongTempos = async (
     return new Error(`error fetching audio features: ${error.message}`);
   }
 };
-
-export default addSongTempos;

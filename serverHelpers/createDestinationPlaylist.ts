@@ -3,7 +3,7 @@ import { DESTINATION_PLAYLIST_NAME } from "../constants";
 import { SpotifyPlaylist } from "../types/SpotifyTypes";
 import { buildHeaders } from "../util/headers";
 
-const createDestinationPlaylist = async (
+export const createDestinationPlaylist = async (
   userId: string,
   accessToken: string
 ): Promise<SpotifyPlaylist | Error> => {
@@ -22,5 +22,3 @@ const createDestinationPlaylist = async (
     return new Error(`error creating destination playlist:", ${error.message}`);
   }
 };
-
-export default createDestinationPlaylist;

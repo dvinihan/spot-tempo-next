@@ -1,19 +1,25 @@
-import { AllData } from "../types/serverTypes";
-import fetchTracksFromSpotify from "./fetchTracksFromSpotify";
-import getPlaylistAndUserId from "./getPlaylistAndUserId";
+import { Song } from "../types/Song";
+import { fetchTracksFromSpotify } from "./fetchTracksFromSpotify";
+import { getDestinationPlaylistId } from "./getDestinationPlaylistId";
 
-const fetchAllSpotifySongs = async ({
+export const fetchAllSpotifySongs = async ({
   accessToken,
+  userId,
 }: {
   accessToken: string;
-}): Promise<AllData | Error> => {
-  const ids = await getPlaylistAndUserId(accessToken);
+  userId: string;
+}): Promise<
+  | {
+      savedSongs: Song[];
+      destinationSongs: Song[];
+    }
+  | Error
+> => {
+  const playlistId = await getDestinationPlaylistId(accessToken, userId);
 
-  if (ids instanceof Error) {
-    return ids;
+  if (playlistId instanceof Error) {
+    return playlistId;
   }
-
-  const { playlistId, userId } = ids;
 
   const [savedSongs, destinationSongs] = await Promise.all([
     fetchTracksFromSpotify({
@@ -33,7 +39,5 @@ const fetchAllSpotifySongs = async ({
     return destinationSongs;
   }
 
-  return { savedSongs, destinationSongs, userId };
+  return { savedSongs, destinationSongs };
 };
-
-export default fetchAllSpotifySongs;
