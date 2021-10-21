@@ -1,28 +1,33 @@
-import { Container, Grid, Typography } from "@mui/material";
+import { Button, Container, Grid, Typography } from "@mui/material";
 import SearchBar from "../components/SearchBar";
 import SongCount from "../components/SongCount";
 import LoadingModal from "../components/LoadingModal";
 import { useAuth } from "../hooks/useAuth";
 import { ListType } from "../constants";
 import SongList from "../components/SongList";
+import { useAppContext } from "../context/appContext";
+import { CustomAppBar } from "../components/CustomAppBar";
 
 const SavedSongs = () => {
   useAuth();
 
+  const { reloadFromSpotifyMutation } = useAppContext();
+
+  const handleReload = () => reloadFromSpotifyMutation.mutate();
+
   return (
     <>
+      <CustomAppBar />
       <Grid
         container
         direction="column"
         spacing={3}
         justifyContent="center"
         alignItems="center"
+        sx={{ mt: 7 }}
       >
         <Grid item>
           <Container>
-            <Typography align="center" sx={{ fontSize: 30 }}>
-              Spotify BPM Picker
-            </Typography>
             <Typography align="center" sx={{ fontSize: 16 }}>
               This app will allow you to search for songs by BPM in your Liked
               Songs, and add them to your &quot;SpotTempo&quot; playlist.
@@ -30,20 +35,27 @@ const SavedSongs = () => {
           </Container>
         </Grid>
         <Grid item>
-          <Container>
-            <Typography align="center" sx={{ fontSize: 30 }}>
-              Matching Songs
-            </Typography>
-          </Container>
+          <SongCount listType={ListType.SAVED_SONG} />
         </Grid>
         <Grid item>
-          <SongCount listType={ListType.SAVED_SONG} />
+          <Button
+            onClick={handleReload}
+            sx={{
+              color: "black",
+              bgcolor: "lightblue",
+              ":hover": {
+                bgcolor: "white",
+              },
+            }}
+          >
+            Reload from Spotify
+          </Button>
         </Grid>
         <Grid item>
           <SearchBar />
         </Grid>
         <Grid item>
-          <SongList listType={ListType.SAVED_SONG} />
+          <SongList listType={ListType.SAVED_SONG} enableQueryOnLoad={false} />
         </Grid>
         <LoadingModal />
       </Grid>

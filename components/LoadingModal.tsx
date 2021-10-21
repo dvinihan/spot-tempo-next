@@ -11,7 +11,7 @@ import { getSongList } from "../mutationFunctions/songs";
 import { getAuthCookies } from "../util/cookies";
 
 const LoadingModal = () => {
-  const { loginMutation, refreshMutation, reloadSavedSongsMutation } =
+  const { loginMutation, refreshAuthMutation, reloadFromSpotifyMutation } =
     useAppContext();
 
   const { accessTokenCookie } = getAuthCookies();
@@ -24,9 +24,9 @@ const LoadingModal = () => {
 
   const loadingText = songListQuery.isLoading
     ? SEARCH_LOADING_TEXT
-    : loginMutation.isLoading || refreshMutation.isLoading
+    : loginMutation.isLoading || refreshAuthMutation.isLoading
     ? AUTH_LOADING_TEXT
-    : reloadSavedSongsMutation.isLoading
+    : reloadFromSpotifyMutation.isLoading
     ? SAVED_SONGS_LOADING_TEXT
     : "";
 

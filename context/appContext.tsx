@@ -1,24 +1,28 @@
 import { useRouter } from "next/dist/client/router";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 import { useMutation, UseMutationResult } from "react-query";
-import { login, refresh } from "../mutationFunctions/auth";
-import { reloadSavedSongs } from "../mutationFunctions/songs";
+import { login, refreshAuth } from "../mutationFunctions/auth";
+import { reloadFromSpotify } from "../mutationFunctions/songs";
 import { getAuthCookies, setAuthCookies } from "../util/cookies";
 
 type ContextProps = {
-  reloadSavedSongsMutation: UseMutationResult<any, unknown, void, unknown>;
+  reloadFromSpotifyMutation: UseMutationResult<any, unknown, void, unknown>;
   loginMutation: UseMutationResult<any, unknown, { code: string }, unknown>;
-  refreshMutation: UseMutationResult<
+  refreshAuthMutation: UseMutationResult<
     any,
     unknown,
     { refreshToken: string },
     unknown
   >;
+  isNavDrawerOpen: boolean;
+  setIsNavDrawerOpen: (isOpen: boolean) => void;
 };
 
 export const AppContextProvider = ({ children }: { children: any }) => {
   const router = useRouter();
   const { accessTokenCookie } = getAuthCookies();
+
+  const [isNavDrawerOpen, setIsNavDrawerOpen] = useState(false);
 
   const loginMutation = useMutation(login, {
     onSuccess: ({ accessToken, expiryTime, refreshToken }) => {
@@ -27,14 +31,14 @@ export const AppContextProvider = ({ children }: { children: any }) => {
     },
   });
 
-  const refreshMutation = useMutation(refresh, {
+  const refreshAuthMutation = useMutation(refreshAuth, {
     onSuccess: ({ accessToken, expiryTime, refreshToken }) => {
       setAuthCookies({ accessToken, expiryTime, refreshToken });
     },
   });
 
-  const reloadSavedSongsMutation = useMutation(
-    () => reloadSavedSongs({ accessTokenCookie })
+  const reloadFromSpotifyMutation = useMutation(
+    () => reloadFromSpotify({ accessTokenCookie })
     // {
     //   onSuccess: () => {
     //     savedSongsCountMutation.mutate();
@@ -45,9 +49,11 @@ export const AppContextProvider = ({ children }: { children: any }) => {
   return (
     <AppContext.Provider
       value={{
-        reloadSavedSongsMutation,
+        reloadFromSpotifyMutation,
         loginMutation,
-        refreshMutation,
+        refreshAuthMutation,
+        isNavDrawerOpen,
+        setIsNavDrawerOpen,
       }}
     >
       {children}

@@ -4,18 +4,21 @@ import LoadingModal from "../components/LoadingModal";
 import { useAuth } from "../hooks/useAuth";
 import { ListType } from "../constants";
 import SongList from "../components/SongList";
+import { CustomAppBar } from "../components/CustomAppBar";
 
 const DislikedSongs = () => {
   useAuth();
 
   return (
     <>
+      <CustomAppBar />
       <Grid
         container
         direction="column"
         spacing={3}
         justifyContent="center"
         alignItems="center"
+        sx={{ mt: 7 }}
       >
         <Grid item>
           <Container>
@@ -28,7 +31,7 @@ const DislikedSongs = () => {
           <SongCount listType={ListType.DISLIKED_SONG} />
         </Grid>
         <Grid item>
-          <SongList listType={ListType.DISLIKED_SONG} />
+          <SongList listType={ListType.DISLIKED_SONG} enableQueryOnLoad />
         </Grid>
         <LoadingModal />
       </Grid>

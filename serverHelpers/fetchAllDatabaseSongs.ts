@@ -1,7 +1,7 @@
 import { Db } from "mongodb";
 import { Song } from "../types/Song";
 
-const getDatabaseSavedSongs = async (
+const fetchAllDatabaseSongs = async (
   db: Db,
   userId: string
 ): Promise<Song[]> => {
@@ -9,4 +9,4 @@ const getDatabaseSavedSongs = async (
   return document?.songs ?? [];
 };
 
-export default getDatabaseSavedSongs;
+export default fetchAllDatabaseSongs;

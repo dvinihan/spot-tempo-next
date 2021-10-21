@@ -4,6 +4,6 @@ export type Song = {
   name: string;
   artist: string;
   tempo: number;
-  isInDestinationPlaylist: boolean;
+  isInPlaylist: boolean;
   isDisliked: boolean;
 };

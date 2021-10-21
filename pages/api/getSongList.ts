@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "../../util/mongodb";
 import { Song } from "../../types/Song";
-import fetchAllData from "../../serverHelpers/fetchAllData";
 import { addRetryHandler } from "../../util/axios";
 import { ListType } from "../../constants";
+import fetchAllDatabaseSongs from "../../serverHelpers/fetchAllDatabaseSongs";
+import getUserId from "../../serverHelpers/getUserId";
 
 export type Data = { songs: Song[] };
 
@@ -23,46 +24,37 @@ export const getMatchingSongs = async (
 
   const db = await connectToDatabase();
 
-  const allData = await fetchAllData({
-    db,
-    accessToken,
-    shouldGetFreshSongs: false,
-  });
+  const userId = await getUserId(accessToken as string);
 
-  if (allData instanceof Error) {
-    return res.status(500).send(allData);
+  if (userId instanceof Error) {
+    return res.status(500).send(userId);
   }
 
-  const { savedSongs, destinationSongs } = allData;
+  const allDatabaseSongs = await fetchAllDatabaseSongs(db, userId);
 
-  let songList: Song[] = [];
-  switch (listType) {
-    case ListType.SAVED_SONG: {
-      songList = savedSongs
-        .filter(
-          (song) =>
-            song.tempo > Number(bpm) - 5 &&
-            song.tempo < Number(bpm) + 5 &&
-            !song.isDisliked &&
-            !song.isInDestinationPlaylist
-        )
-        .map((song) => {
-          const isInDestinationPlaylist = Boolean(
-            destinationSongs?.find((s) => s.id === song.id)
-          );
-          return { ...song, isInDestinationPlaylist } as Song;
-        });
-    }
-    case ListType.ADDED_SONG: {
-      songList = savedSongs.filter((song) => song.isInDestinationPlaylist);
-    }
-    case ListType.DISLIKED_SONG: {
-      songList = savedSongs.filter((song) => song.isDisliked);
-    }
+  if (allDatabaseSongs instanceof Error) {
+    return res.status(500).send(allDatabaseSongs);
   }
+
+  const filterFn =
+    listType === ListType.SAVED_SONG
+      ? (song: Song) =>
+          song.tempo > Number(bpm) - 5 &&
+          song.tempo < Number(bpm) + 5 &&
+          !song.isDisliked &&
+          !song.isInPlaylist
+      : listType === ListType.PLAYLIST_SONG
+      ? (song: Song) => song.isInPlaylist
+      : listType === ListType.DISLIKED_SONG
+      ? (song: Song) => song.isDisliked
+      : () => {};
+
+  const songList = allDatabaseSongs
+    .filter(filterFn)
+    .slice(parseInt(start), parseInt(end));
 
   return res.status(200).send({
-    songs: songList.slice(parseInt(start), parseInt(end)),
+    songs: songList,
   });
 };
 

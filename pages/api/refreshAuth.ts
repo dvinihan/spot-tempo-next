@@ -8,7 +8,7 @@ export type Data = {
   refreshToken: string;
 };
 
-const refresh = async (
+const refreshAuth = async (
   req: NextApiRequest,
   res: NextApiResponse<Data | Error>
 ) => {
@@ -34,4 +34,4 @@ const refresh = async (
   });
 };
 
-export default refresh;
+export default refreshAuth;

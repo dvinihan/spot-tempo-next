@@ -7,15 +7,16 @@ import { getSongList } from "../mutationFunctions/songs";
 
 type Props = {
   listType: ListType;
+  enableQueryOnLoad: boolean;
 };
 
-const SongList = ({ listType }: Props) => {
+const SongList = ({ listType, enableQueryOnLoad }: Props) => {
   const { accessTokenCookie } = getAuthCookies();
 
   const songListQuery = useQuery(
     [`getSongList`],
     () => getSongList({ accessTokenCookie, listType }),
-    { enabled: false }
+    { enabled: enableQueryOnLoad }
   );
 
   if (!songListQuery.data) {

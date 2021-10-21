@@ -6,7 +6,7 @@ import { buildHeaders } from "../../util/headers";
 import { connectToDatabase } from "../../util/mongodb";
 import { SongAction } from "../../constants";
 
-export type Data = { isInDestinationPlaylist?: boolean; isDisliked?: boolean };
+export type Data = { isInPlaylist?: boolean; isDisliked?: boolean };
 
 const modifySong = async (
   req: NextApiRequest,
@@ -49,11 +49,13 @@ const modifySong = async (
           { uris: [songUri] },
           { headers: buildHeaders(accessToken) }
         );
-        returnValues = { isInDestinationPlaylist: true };
+        returnValues = { isInPlaylist: true };
+        break;
       }
       case SongAction.REMOVE: {
         await removeSong();
-        returnValues = { isInDestinationPlaylist: false };
+        returnValues = { isInPlaylist: false };
+        break;
       }
       case SongAction.DISLIKE: {
         const db = await connectToDatabase();
@@ -66,7 +68,8 @@ const modifySong = async (
           }
         );
         await removeSong();
-        returnValues = { isDisliked: true, isInDestinationPlaylist: false };
+        returnValues = { isDisliked: true, isInPlaylist: false };
+        break;
       }
     }
 

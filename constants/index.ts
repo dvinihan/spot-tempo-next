@@ -18,6 +18,12 @@ export enum SongAction {
 
 export enum ListType {
   SAVED_SONG = "Saved",
-  ADDED_SONG = "Added",
+  PLAYLIST_SONG = "Playlist",
   DISLIKED_SONG = "Disliked",
+}
+
+export enum Paths {
+  HOME = "/",
+  PLAYLIST_SONGS = "/playlistSongs",
+  DISLIKED_SONGS = "/dislikedSongs",
 }

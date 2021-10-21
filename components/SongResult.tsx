@@ -16,8 +16,7 @@ const SongResult = ({ song }: Props) => {
 
   const { data, isLoading, mutate } = useMutation(modifySong);
 
-  const isInPlaylist =
-    data?.isInDestinationPlaylist ?? song.isInDestinationPlaylist;
+  const isInPlaylist = data?.isInPlaylist ?? song.isInPlaylist;
   const isDisliked = data?.isDisliked ?? song.isDisliked;
 
   const shiftSong = () => {
