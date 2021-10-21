@@ -1,5 +1,3 @@
-import { ADD, REMOVE } from "../constants/index";
-
 export type Song = {
   id: string;
   uri: string;
@@ -7,6 +5,5 @@ export type Song = {
   artist: string;
   tempo: number;
   isInDestinationPlaylist: boolean;
+  isDisliked: boolean;
 };
-
-export type SongAction = typeof ADD | typeof REMOVE;

@@ -1,32 +1,46 @@
 import axios from "axios";
-import { SongAction } from "../types/Song";
+import { ListType, SongAction } from "../constants";
 
-export const getSavedSongsCount = async ({
+export const getSongCount = async ({
   accessTokenCookie,
+  listType,
+  isExpired,
 }: {
   accessTokenCookie?: string;
+  listType: ListType;
+  isExpired: boolean;
 }) => {
-  if (!accessTokenCookie) {
+  if (!accessTokenCookie || isExpired) {
     return;
   }
 
   const { data } = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/getSavedSongsCount`,
-    { params: { accessToken: accessTokenCookie } }
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/getSongCount`,
+    { params: { accessToken: accessTokenCookie, listType } }
   );
   return data;
 };
 
-export const getMatchingSongs = async ({
+export const getSongList = async ({
   bpm,
   accessTokenCookie,
+  listType,
 }: {
-  bpm: string;
+  bpm?: string;
   accessTokenCookie?: string;
+  listType: ListType;
 }) => {
   const { data } = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/getMatchingSongs`,
-    { params: { bpm, start: 0, end: 100, accessToken: accessTokenCookie } }
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/getSongList`,
+    {
+      params: {
+        bpm,
+        start: 0,
+        end: 100,
+        accessToken: accessTokenCookie,
+        listType,
+      },
+    }
   );
   return data?.songs;
 };
@@ -45,7 +59,7 @@ export const reloadSavedSongs = async ({
   return data;
 };
 
-export const addOrRemoveSong = async ({
+export const modifySong = async ({
   songUri,
   accessTokenCookie,
   action,
@@ -55,7 +69,7 @@ export const addOrRemoveSong = async ({
   action: SongAction;
 }) => {
   const { data } = await axios.post(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/addOrRemoveSong`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/modifySong`,
     {
       songUri,
       accessToken: accessTokenCookie,

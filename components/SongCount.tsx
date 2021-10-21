@@ -1,20 +1,20 @@
 import { CircularProgress, Typography } from "@mui/material";
-import { useEffect } from "react";
-import { useAppContext } from "../context/appContext";
+import { useQuery } from "react-query";
+import { ListType } from "../constants";
+import { getSongCount } from "../mutationFunctions/songs";
 import { getAuthCookies, getIsAccessTokenExpired } from "../util/cookies";
 
-const SongCount = () => {
-  const { savedSongsCountMutation } = useAppContext();
-  const { mutate, isLoading, data } = savedSongsCountMutation;
+type Props = {
+  listType: ListType;
+};
 
-  const { expiryTimeCookie } = getAuthCookies();
+const SongCount = ({ listType }: Props) => {
+  const { accessTokenCookie, expiryTimeCookie } = getAuthCookies();
   const isExpired = getIsAccessTokenExpired(expiryTimeCookie);
 
-  useEffect(() => {
-    if (!isExpired) {
-      mutate();
-    }
-  }, [mutate, isExpired]);
+  const { isLoading, data } = useQuery([`getSongCount`, isExpired], () =>
+    getSongCount({ accessTokenCookie, listType, isExpired })
+  );
 
   if (isLoading || data?.count === undefined) {
     return <CircularProgress />;
@@ -22,7 +22,7 @@ const SongCount = () => {
 
   return (
     <Typography align="center" sx={{ fontWeight: 500 }}>
-      Total saved songs: {data?.count}
+      Total {listType.toLowerCase()} songs: {data?.count}
     </Typography>
   );
 };

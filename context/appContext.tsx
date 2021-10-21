@@ -2,21 +2,10 @@ import { useRouter } from "next/dist/client/router";
 import { createContext, useContext } from "react";
 import { useMutation, UseMutationResult } from "react-query";
 import { login, refresh } from "../mutationFunctions/auth";
-import {
-  getMatchingSongs,
-  getSavedSongsCount,
-  reloadSavedSongs,
-} from "../mutationFunctions/songs";
+import { reloadSavedSongs } from "../mutationFunctions/songs";
 import { getAuthCookies, setAuthCookies } from "../util/cookies";
 
 type ContextProps = {
-  matchingSongsMutation: UseMutationResult<
-    any,
-    unknown,
-    { bpm: string },
-    unknown
-  >;
-  savedSongsCountMutation: UseMutationResult<any, unknown, void, unknown>;
   reloadSavedSongsMutation: UseMutationResult<any, unknown, void, unknown>;
   loginMutation: UseMutationResult<any, unknown, { code: string }, unknown>;
   refreshMutation: UseMutationResult<
@@ -30,15 +19,6 @@ type ContextProps = {
 export const AppContextProvider = ({ children }: { children: any }) => {
   const router = useRouter();
   const { accessTokenCookie } = getAuthCookies();
-
-  // Even though some of these are GET calls, things work better when they are mutations because I don't need constant refreshes in the background
-  const matchingSongsMutation = useMutation(({ bpm }: { bpm: string }) =>
-    getMatchingSongs({ bpm, accessTokenCookie })
-  );
-
-  const savedSongsCountMutation = useMutation(() =>
-    getSavedSongsCount({ accessTokenCookie })
-  );
 
   const loginMutation = useMutation(login, {
     onSuccess: ({ accessToken, expiryTime, refreshToken }) => {
@@ -54,19 +34,17 @@ export const AppContextProvider = ({ children }: { children: any }) => {
   });
 
   const reloadSavedSongsMutation = useMutation(
-    () => reloadSavedSongs({ accessTokenCookie }),
-    {
-      onSuccess: () => {
-        savedSongsCountMutation.mutate();
-      },
-    }
+    () => reloadSavedSongs({ accessTokenCookie })
+    // {
+    //   onSuccess: () => {
+    //     savedSongsCountMutation.mutate();
+    //   },
+    // }
   );
 
   return (
     <AppContext.Provider
       value={{
-        matchingSongsMutation,
-        savedSongsCountMutation,
         reloadSavedSongsMutation,
         loginMutation,
         refreshMutation,
