@@ -1,21 +1,13 @@
 import { CircularProgress, Typography } from "@mui/material";
-import { useQuery } from "react-query";
 import { ListType } from "../constants";
-import { getSongCount } from "../mutationFunctions/songs";
-import { getAuthCookies, getIsAccessTokenExpired } from "../util/cookies";
+import { useSongCountQuery } from "../hooks/useSongCountQuery";
 
 type Props = {
   listType: ListType;
 };
 
 const SongCount = ({ listType }: Props) => {
-  const { accessTokenCookie, expiryTimeCookie } = getAuthCookies();
-  const isExpired = getIsAccessTokenExpired(expiryTimeCookie);
-
-  const { isLoading, data } = useQuery(
-    [`getSongCount - ${listType}`, isExpired],
-    () => getSongCount({ accessTokenCookie, listType, isExpired })
-  );
+  const { isLoading, data } = useSongCountQuery(listType);
 
   if (isLoading || data?.count === undefined) {
     return <CircularProgress />;

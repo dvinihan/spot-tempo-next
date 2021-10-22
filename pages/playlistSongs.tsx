@@ -5,11 +5,21 @@ import { useAuth } from "../hooks/useAuth";
 import { ListType } from "../constants";
 import SongList from "../components/SongList";
 import { CustomAppBar } from "../components/CustomAppBar";
+import { useCallback } from "react";
+import { getLoadingModalText } from "../helpers";
+import { useSongListQuery } from "../hooks/useSongListQuery";
 
 const AddedSongs = () => {
-  useAuth();
-
   const listType = ListType.PLAYLIST_SONG;
+
+  const { isAuthLoading } = useAuth();
+
+  const songListQuery = useSongListQuery(listType);
+
+  const loadingModalTextCallback = useCallback(
+    () => getLoadingModalText(songListQuery.isFetching, isAuthLoading, false),
+    [songListQuery.isFetching, isAuthLoading]
+  );
 
   return (
     <>
@@ -35,7 +45,10 @@ const AddedSongs = () => {
         <Grid item>
           <SongList listType={listType} />
         </Grid>
-        <LoadingModal listType={listType} />
+        <LoadingModal
+          text={loadingModalTextCallback()}
+          isLoading={Boolean(loadingModalTextCallback())}
+        />
       </Grid>
     </>
   );

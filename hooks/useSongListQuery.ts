@@ -7,7 +7,7 @@ export const useSongListQuery = (listType: ListType, bpm?: string) => {
   const { accessTokenCookie } = getAuthCookies();
 
   return useQuery(
-    [`getSongList - ${listType}`],
+    "getSongList",
     () => getSongList({ bpm, accessTokenCookie, listType }),
     // for SAVED_SONG list, we only want the query to be made on manual request through the "search" button
     {

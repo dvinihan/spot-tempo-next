@@ -1,7 +1,12 @@
 import { useRouter } from "next/dist/client/router";
 import { useEffect } from "react";
-import { useAppContext } from "../context/appContext";
-import { getAuthCookies, getIsAccessTokenExpired } from "../util/cookies";
+import { useMutation } from "react-query";
+import { login, refreshAuth } from "../mutationFunctions/auth";
+import {
+  getAuthCookies,
+  getIsAccessTokenExpired,
+  setAuthCookies,
+} from "../util/cookies";
 
 const authParams = new URLSearchParams({
   client_id: process.env.NEXT_PUBLIC_CLIENT_ID || "",
@@ -19,7 +24,19 @@ export const useAuth = () => {
   const router = useRouter();
   const { code } = router.query;
 
-  const { loginMutation, refreshAuthMutation } = useAppContext();
+  const loginMutation = useMutation(login, {
+    onSuccess: ({ accessToken, expiryTime, refreshToken }) => {
+      setAuthCookies({ accessToken, expiryTime, refreshToken });
+      router.push(process.env.NEXT_PUBLIC_BASE_URL as string);
+    },
+  });
+
+  const refreshAuthMutation = useMutation(refreshAuth, {
+    onSuccess: ({ accessToken, expiryTime, refreshToken }) => {
+      setAuthCookies({ accessToken, expiryTime, refreshToken });
+    },
+  });
+
   // mutation changes would trigger a useEffect refresh on every render, so we need to isolate the mutate fn only
   const { mutate: doLogin } = loginMutation;
   const { mutate: doRefresh } = refreshAuthMutation;
@@ -48,4 +65,8 @@ export const useAuth = () => {
       );
     }
   }, [code, doLogin, doRefresh, router]);
+
+  return {
+    isAuthLoading: loginMutation.isLoading || refreshAuthMutation.isLoading,
+  };
 };

@@ -1,33 +1,12 @@
-import { Grid, Modal, Paper } from "@mui/material";
-import {
-  AUTH_LOADING_TEXT,
-  ListType,
-  SAVED_SONGS_LOADING_TEXT,
-  SEARCH_LOADING_TEXT,
-} from "../constants";
-import { useAppContext } from "../context/appContext";
-import { useSongListQuery } from "../hooks/useSongListQuery";
-
+import { Grid, Modal, Paper, Typography } from "@mui/material";
 type Props = {
-  listType: ListType;
+  text: string;
+  isLoading: boolean;
 };
 
-const LoadingModal = ({ listType }: Props) => {
-  const { loginMutation, refreshAuthMutation, reloadFromSpotifyMutation } =
-    useAppContext();
-
-  const songListQuery = useSongListQuery(listType);
-
-  const loadingText = songListQuery.isFetching
-    ? SEARCH_LOADING_TEXT
-    : loginMutation.isLoading || refreshAuthMutation.isLoading
-    ? AUTH_LOADING_TEXT
-    : reloadFromSpotifyMutation.isLoading
-    ? SAVED_SONGS_LOADING_TEXT
-    : "";
-
+const LoadingModal = ({ text, isLoading }: Props) => {
   return (
-    <Modal open={Boolean(loadingText)}>
+    <Modal open={isLoading}>
       <Grid
         container
         justifyContent="center"
@@ -41,7 +20,7 @@ const LoadingModal = ({ listType }: Props) => {
               padding: "30px",
             }}
           >
-            {loadingText}
+            <Typography fontSize={30}>{text}</Typography>
           </Paper>
         </Grid>
       </Grid>
