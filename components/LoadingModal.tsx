@@ -1,4 +1,5 @@
 import { Grid, Modal, Paper, Typography } from "@mui/material";
+
 type Props = {
   text: string;
   isLoading: boolean;

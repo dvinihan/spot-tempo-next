@@ -25,7 +25,6 @@ export const modifySongInDatabase = async (
       { userId },
       { $set: data },
       {
-        // multi: true,
         arrayFilters: [{ "song.uri": songUri }],
       }
     );
