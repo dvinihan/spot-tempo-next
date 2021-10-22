@@ -30,6 +30,9 @@ export const getSongList = async ({
   accessTokenCookie?: string;
   listType: ListType;
 }) => {
+  if (listType === ListType.SAVED_SONG && !bpm) {
+    return [];
+  }
   const { data } = await axios.get(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/getSongList`,
     {

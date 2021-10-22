@@ -1,7 +1,7 @@
 import axios from "axios";
 import { buildHeaders } from "../util/headers";
 
-export const addSong = async (
+export const addSongInSpotify = async (
   accessToken: string,
   playlistId: string,
   songUri: string

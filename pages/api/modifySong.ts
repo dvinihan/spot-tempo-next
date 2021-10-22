@@ -4,9 +4,9 @@ import { getDestinationPlaylistId } from "../../spotifyHelpers/getDestinationPla
 import { connectToDatabase } from "../../util/mongodb";
 import { SongAction } from "../../constants";
 import { getUserId } from "../../spotifyHelpers/getUserId";
-import { addSong } from "../../spotifyHelpers/addSong";
-import { removeSong } from "../../spotifyHelpers/removeSong";
-import { changeSongTaste } from "../../databaseHelpers/changeSongTaste";
+import { addSongInSpotify } from "../../spotifyHelpers/addSongInSpotify";
+import { removeSongInSpotify } from "../../spotifyHelpers/removeSongInSpotify";
+import { modifySongInDatabase } from "../../databaseHelpers/modifySongInDatabase";
 
 export type Data = { isInPlaylist?: boolean; isDisliked?: boolean };
 
@@ -30,25 +30,32 @@ const modifySong = async (
     let returnValues;
     switch (action) {
       case SongAction.ADD: {
-        await addSong(accessToken, playlistId, songUri);
-        await changeSongTaste(db, userId, songUri, false);
-        returnValues = { isInPlaylist: true, isDisliked: false };
+        await addSongInSpotify(accessToken, playlistId, songUri);
+        await modifySongInDatabase(db, userId, songUri, {
+          isInPlaylist: true,
+          isDisliked: false,
+        });
         break;
       }
       case SongAction.REMOVE: {
-        await removeSong(accessToken, playlistId, songUri);
-        returnValues = { isInPlaylist: false };
+        await removeSongInSpotify(accessToken, playlistId, songUri);
+        await modifySongInDatabase(db, userId, songUri, {
+          isInPlaylist: false,
+        });
         break;
       }
       case SongAction.DISLIKE: {
-        await changeSongTaste(db, userId, songUri, true);
-        await removeSong(accessToken, playlistId, songUri);
-        returnValues = { isInPlaylist: false, isDisliked: true };
+        await removeSongInSpotify(accessToken, playlistId, songUri);
+        await modifySongInDatabase(db, userId, songUri, {
+          isInPlaylist: false,
+          isDisliked: true,
+        });
         break;
       }
       case SongAction.RELIKE: {
-        await changeSongTaste(db, userId, songUri, false);
-        returnValues = { isDisliked: false };
+        await modifySongInDatabase(db, userId, songUri, {
+          isDisliked: false,
+        });
         break;
       }
     }

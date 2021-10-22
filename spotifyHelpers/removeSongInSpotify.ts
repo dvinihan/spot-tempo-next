@@ -1,7 +1,7 @@
 import axios from "axios";
 import { buildHeaders } from "../util/headers";
 
-export const removeSong = async (
+export const removeSongInSpotify = async (
   accessToken: string,
   playlistId: string,
   songUri: string
