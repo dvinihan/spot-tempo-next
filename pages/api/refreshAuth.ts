@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { handleLogin } from "../../serverHelpers/handleLogin";
+import { handleLogin } from "../../spotifyHelpers/handleLogin";
 import { addRetryHandler } from "../../util/axios";
 
 export type Data = {
@@ -10,22 +10,22 @@ export type Data = {
 
 const refreshAuth = async (
   req: NextApiRequest,
-  res: NextApiResponse<Data | Error>
+  res: NextApiResponse<Data | { error: string }>
 ) => {
-  addRetryHandler();
+  try {
+    addRetryHandler();
 
-  const { refreshToken } = req.body;
+    const { refreshToken } = req.body;
 
-  const authInfo = await handleLogin({
-    refresh_token: refreshToken,
-    grant_type: "refresh_token",
-  });
+    const authInfo = await handleLogin({
+      refresh_token: refreshToken,
+      grant_type: "refresh_token",
+    });
 
-  if (authInfo instanceof Error) {
-    return res.status(500).send(authInfo);
+    return res.status(200).send(authInfo);
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
   }
-
-  return res.status(200).send(authInfo);
 };
 
 export default refreshAuth;

@@ -10,7 +10,7 @@ export const fetchTracksFromSpotify = async ({
 }: {
   tracksUrl: string;
   accessToken: string;
-}): Promise<Song[] | Error> => {
+}): Promise<Song[]> => {
   try {
     // Get the first batch of tracks and the total number of tracks
     const response = await axios.get(`${tracksUrl}?limit=50`, {
@@ -40,7 +40,7 @@ export const fetchTracksFromSpotify = async ({
 
     return await addSongTempos(songsCompact, total, accessToken);
   } catch (error: any) {
-    return new Error(`error fetching tracks from Spotify: ${error.message}`);
+    throw new Error(`error fetching tracks from Spotify: ${error.message}`);
   }
 };
 

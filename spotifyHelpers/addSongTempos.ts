@@ -7,7 +7,7 @@ export const addSongTempos = async (
   songs: Song[],
   total: number,
   accessToken: string
-): Promise<Song[] | Error> => {
+): Promise<Song[]> => {
   const step = 100;
 
   try {
@@ -36,6 +36,6 @@ export const addSongTempos = async (
     });
     return songsWithTempos;
   } catch (error: any) {
-    return new Error(`error fetching audio features: ${error.message}`);
+    throw new Error(`error fetching audio features: ${error.message}`);
   }
 };

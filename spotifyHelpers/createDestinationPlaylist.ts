@@ -6,7 +6,7 @@ import { buildHeaders } from "../util/headers";
 export const createDestinationPlaylist = async (
   userId: string,
   accessToken: string
-): Promise<SpotifyPlaylist | Error> => {
+): Promise<SpotifyPlaylist> => {
   try {
     const { data } = await axios.post(
       `https://api.spotify.com/v1/users/${userId}/playlists`,
@@ -19,6 +19,6 @@ export const createDestinationPlaylist = async (
     );
     return data;
   } catch (error: any) {
-    return new Error(`error creating destination playlist:", ${error.message}`);
+    throw new Error(`error creating destination playlist:", ${error.message}`);
   }
 };

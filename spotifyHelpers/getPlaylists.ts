@@ -4,7 +4,7 @@ import { buildHeaders } from "../util/headers";
 
 export const getPlaylists = async (
   accessToken: string
-): Promise<SpotifyPlaylist[] | Error> => {
+): Promise<SpotifyPlaylist[]> => {
   try {
     const { data } = await axios.get(
       "https://api.spotify.com/v1/me/playlists",
@@ -14,6 +14,6 @@ export const getPlaylists = async (
     );
     return data.items;
   } catch (error: any) {
-    return new Error(`error fetching playlists: ${error.message}`);
+    throw new Error(`error fetching playlists: ${error.message}`);
   }
 };

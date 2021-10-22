@@ -22,7 +22,7 @@ const LoadingModal = () => {
     { enabled: false }
   );
 
-  const loadingText = songListQuery.isLoading
+  const loadingText = songListQuery.isFetching
     ? SEARCH_LOADING_TEXT
     : loginMutation.isLoading || refreshAuthMutation.isLoading
     ? AUTH_LOADING_TEXT

@@ -2,14 +2,11 @@ import axios from "axios";
 
 export const handleLogin = async (
   body: any
-): Promise<
-  | {
-      accessToken: string;
-      expiryTime: number;
-      refreshToken: string;
-    }
-  | Error
-> => {
+): Promise<{
+  accessToken: string;
+  expiryTime: number;
+  refreshToken: string;
+}> => {
   const base64data = Buffer.from(
     `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.CLIENT_SECRET}`
   ).toString("base64");
@@ -35,6 +32,6 @@ export const handleLogin = async (
       refreshToken: data.refresh_token,
     };
   } catch (error: any) {
-    return new Error(`error logging in: ${error.message}`);
+    throw new Error(`error logging in: ${error.message}`);
   }
 };

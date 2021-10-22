@@ -2,9 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "../../util/mongodb";
 import { addRetryHandler } from "../../util/axios";
 import { Song } from "../../types/Song";
-import { fetchAllSpotifySongs } from "../../serverHelpers/fetchAllSpotifySongs";
-import { fetchAllDatabaseSongs } from "../../serverHelpers/fetchAllDatabaseSongs";
-import { getUserId } from "../../serverHelpers/getUserId";
+import { fetchAllDatabaseSongs } from "../../databaseHelpers/fetchAllDatabaseSongs";
+import { getUserId } from "../../spotifyHelpers/getUserId";
+import { getDestinationPlaylistId } from "../../spotifyHelpers/getDestinationPlaylistId";
+import { fetchTracksFromSpotify } from "../../spotifyHelpers/fetchTracksFromSpotify";
+import { insertUserAndSongs } from "../../databaseHelpers/insertUserAndSongs";
+import { updateSongs } from "../../databaseHelpers/updateSongs";
+import { getDoesUserExist } from "../../databaseHelpers/getUser";
 
 export type Data = {};
 
@@ -12,63 +16,65 @@ const reloadFromSpotify = async (
   req: NextApiRequest,
   res: NextApiResponse<Data | Error>
 ) => {
-  addRetryHandler();
+  try {
+    addRetryHandler();
 
-  const { accessToken } = req.body;
+    const { accessToken } = req.body;
 
-  const userId = await getUserId(accessToken as string);
+    const userId = await getUserId(accessToken as string);
+    const playlistId = await getDestinationPlaylistId(accessToken, userId);
 
-  if (userId instanceof Error) {
-    return res.status(500).send(userId);
+    const [savedSongs, destinationSongs] = await Promise.all([
+      fetchTracksFromSpotify({
+        tracksUrl: "https://api.spotify.com/v1/me/tracks",
+        accessToken,
+      }),
+      fetchTracksFromSpotify({
+        tracksUrl: `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`,
+        accessToken,
+      }),
+    ]);
+
+    const db = await connectToDatabase();
+
+    const doesUserExist = await getDoesUserExist(db, userId);
+
+    if (doesUserExist) {
+      // if user has disliked some songs, we need to keep that info
+      const databaseSavedSongs = await fetchAllDatabaseSongs(db, userId);
+      const dislikedSongs = databaseSavedSongs.filter(
+        (song) => song.isDisliked
+      );
+
+      const allSongs = savedSongs.map(
+        (song) =>
+          ({
+            ...song,
+            isInPlaylist: getIsSongInList(song, destinationSongs),
+            isDisliked: getIsSongInList(song, dislikedSongs),
+          } as Song)
+      );
+
+      await updateSongs(db, userId, allSongs);
+    } else {
+      const allSongs = savedSongs.map(
+        (song) =>
+          ({
+            ...song,
+            isInPlaylist: getIsSongInList(song, destinationSongs),
+          } as Song)
+      );
+
+      await insertUserAndSongs(db, userId, allSongs);
+    }
+
+    return res.status(200).send({});
+  } catch (error: any) {
+    res.status(500).send({ error: error.message });
   }
-
-  const allSpotifySongs = await fetchAllSpotifySongs({
-    accessToken,
-    userId,
-  });
-
-  if (allSpotifySongs instanceof Error) {
-    return res.status(500).send(allSpotifySongs);
-  }
-
-  const { savedSongs, destinationSongs } = allSpotifySongs;
-
-  const db = await connectToDatabase();
-
-  const [databaseSavedSongs, userDocCount] = await Promise.all([
-    fetchAllDatabaseSongs(db, userId),
-    db.collection("saved-songs").find({ userId }).count(),
-  ]);
-
-  // if user has disliked some songs, we need to keep that info
-  const dislikedSongs = databaseSavedSongs.filter((song) => song.isDisliked);
-
-  const allSongs = savedSongs.map((song) => {
-    const isInPlaylist = Boolean(
-      destinationSongs.find((s) => s.id === song.id)
-    );
-    const isDisliked = Boolean(dislikedSongs.find((s) => s.id === song.id));
-
-    return { ...song, isInPlaylist, isDisliked } as Song;
-  });
-
-  if (userDocCount === 0) {
-    await db.collection("saved-songs").insertOne({
-      songs: allSongs,
-      userId,
-    });
-  } else {
-    await db.collection("saved-songs").updateOne(
-      { userId },
-      {
-        $set: {
-          songs: allSongs,
-        },
-      }
-    );
-  }
-
-  return res.status(200).send({});
 };
+
+const getIsSongInList = (song: Song, list: Song[]) =>
+  Boolean(list.find((s) => s.id === song.id));
 
 export default reloadFromSpotify;
