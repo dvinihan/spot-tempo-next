@@ -15,6 +15,8 @@ const SavedSongs = () => {
 
   const handleReload = () => reloadFromSpotifyMutation.mutate();
 
+  const listType = ListType.SAVED_SONG;
+
   return (
     <>
       <CustomAppBar />
@@ -35,7 +37,7 @@ const SavedSongs = () => {
           </Container>
         </Grid>
         <Grid item>
-          <SongCount listType={ListType.SAVED_SONG} />
+          <SongCount listType={listType} />
         </Grid>
         <Grid item>
           <Button
@@ -55,9 +57,9 @@ const SavedSongs = () => {
           <SearchBar />
         </Grid>
         <Grid item>
-          <SongList listType={ListType.SAVED_SONG} enableQueryOnLoad={false} />
+          <SongList listType={listType} />
         </Grid>
-        <LoadingModal />
+        <LoadingModal listType={listType} />
       </Grid>
     </>
   );

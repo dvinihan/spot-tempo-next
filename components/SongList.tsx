@@ -1,23 +1,14 @@
 import SongResult from "../components/SongResult";
 import { Song } from "../types/Song";
 import { ListType } from "../constants";
-import { getAuthCookies } from "../util/cookies";
-import { useQuery } from "react-query";
-import { getSongList } from "../mutationFunctions/songs";
+import { useSongListQuery } from "../hooks/useSongListQuery";
 
 type Props = {
   listType: ListType;
-  enableQueryOnLoad: boolean;
 };
 
-const SongList = ({ listType, enableQueryOnLoad }: Props) => {
-  const { accessTokenCookie } = getAuthCookies();
-
-  const songListQuery = useQuery(
-    [`getSongList`],
-    () => getSongList({ accessTokenCookie, listType }),
-    { enabled: enableQueryOnLoad }
-  );
+const SongList = ({ listType }: Props) => {
+  const songListQuery = useSongListQuery(listType);
 
   if (!songListQuery.data) {
     return null;

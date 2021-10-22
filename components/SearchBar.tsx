@@ -1,21 +1,12 @@
 import { Button, Input, Typography } from "@mui/material";
 import { useState } from "react";
-import { useQuery } from "react-query";
 import { ListType } from "../constants";
-import { getSongList } from "../mutationFunctions/songs";
-import { getAuthCookies } from "../util/cookies";
+import { useSongListQuery } from "../hooks/useSongListQuery";
 
 const SearchBar = () => {
   const [bpm, setBpm] = useState<string>("");
 
-  const { accessTokenCookie } = getAuthCookies();
-
-  const songListQuery = useQuery(
-    ["getSongList"],
-    () =>
-      getSongList({ bpm, accessTokenCookie, listType: ListType.SAVED_SONG }),
-    { enabled: false }
-  );
+  const songListQuery = useSongListQuery(ListType.SAVED_SONG, bpm);
 
   const handleChange = (e: any) => setBpm(e.target.value);
 

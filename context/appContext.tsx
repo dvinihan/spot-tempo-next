@@ -1,5 +1,5 @@
 import { useRouter } from "next/dist/client/router";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext } from "react";
 import { useMutation, UseMutationResult } from "react-query";
 import { login, refreshAuth } from "../mutationFunctions/auth";
 import { reloadFromSpotify } from "../mutationFunctions/songs";
@@ -14,15 +14,11 @@ type ContextProps = {
     { refreshToken: string },
     unknown
   >;
-  isNavDrawerOpen: boolean;
-  setIsNavDrawerOpen: (isOpen: boolean) => void;
 };
 
 export const AppContextProvider = ({ children }: { children: any }) => {
   const router = useRouter();
   const { accessTokenCookie } = getAuthCookies();
-
-  const [isNavDrawerOpen, setIsNavDrawerOpen] = useState(false);
 
   const loginMutation = useMutation(login, {
     onSuccess: ({ accessToken, expiryTime, refreshToken }) => {
@@ -52,8 +48,6 @@ export const AppContextProvider = ({ children }: { children: any }) => {
         reloadFromSpotifyMutation,
         loginMutation,
         refreshAuthMutation,
-        isNavDrawerOpen,
-        setIsNavDrawerOpen,
       }}
     >
       {children}

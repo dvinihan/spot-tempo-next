@@ -14,6 +14,7 @@ export enum SongAction {
   ADD = "Add",
   REMOVE = "Remove",
   DISLIKE = "Dislike",
+  RELIKE = "Relike",
 }
 
 export enum ListType {
@@ -22,7 +23,7 @@ export enum ListType {
   DISLIKED_SONG = "Disliked",
 }
 
-export enum Paths {
+export enum Path {
   HOME = "/",
   PLAYLIST_SONGS = "/playlistSongs",
   DISLIKED_SONGS = "/dislikedSongs",

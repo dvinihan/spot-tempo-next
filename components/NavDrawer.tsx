@@ -1,48 +1,38 @@
 import { Drawer, List, ListItemButton, ListItemText } from "@mui/material";
 import { useRouter } from "next/dist/client/router";
-import { Paths } from "../constants";
-import { useAppContext } from "../context/appContext";
+import { Path } from "../constants";
 
-export const NavDrawer = () => {
+type Props = {
+  isOpen: boolean;
+  handleClose: () => void;
+};
+
+export const NavDrawer = ({ isOpen, handleClose }: Props) => {
   const router = useRouter();
 
-  const { isNavDrawerOpen, setIsNavDrawerOpen } = useAppContext();
-
-  const handleClose = () => setIsNavDrawerOpen(false);
-
-  const handleHomeClick = () => {
-    router.push(Paths.HOME);
-    handleClose();
-  };
-
-  const handleAddedSongsClick = () => {
-    router.push(Paths.PLAYLIST_SONGS);
-    handleClose();
-  };
-
-  const handleDislikedSongsClick = () => {
-    router.push(Paths.DISLIKED_SONGS);
+  const handleNav = (path: Path) => {
+    router.push(path);
     handleClose();
   };
 
   return (
-    <Drawer anchor="left" open={isNavDrawerOpen} onClose={handleClose}>
+    <Drawer anchor="left" open={isOpen} onClose={handleClose}>
       <List>
         <ListItemButton
-          onClick={handleHomeClick}
-          selected={router.pathname === Paths.HOME}
+          onClick={() => handleNav(Path.HOME)}
+          selected={router.pathname === Path.HOME}
         >
           <ListItemText primary="Home" />
         </ListItemButton>
         <ListItemButton
-          onClick={handleAddedSongsClick}
-          selected={router.pathname === Paths.PLAYLIST_SONGS}
+          onClick={() => handleNav(Path.PLAYLIST_SONGS)}
+          selected={router.pathname === Path.PLAYLIST_SONGS}
         >
           <ListItemText primary="Added Songs" />
         </ListItemButton>
         <ListItemButton
-          onClick={handleDislikedSongsClick}
-          selected={router.pathname === Paths.DISLIKED_SONGS}
+          onClick={() => handleNav(Path.DISLIKED_SONGS)}
+          selected={router.pathname === Path.DISLIKED_SONGS}
         >
           <ListItemText primary="Disliked Songs" />
         </ListItemButton>

@@ -1,11 +1,21 @@
 import { truncate } from "lodash";
 import { Song } from "../types/Song";
-import { ButtonBase, CircularProgress, Grid, Typography } from "@mui/material";
+import {
+  ButtonBase,
+  CircularProgress,
+  Grid,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import { getAuthCookies } from "../util/cookies";
 import { useMutation } from "react-query";
 import { modifySong } from "../mutationFunctions/songs";
 import { SongAction } from "../constants";
+import ThumbDownOutlinedIcon from "@mui/icons-material/ThumbDownOutlined";
+import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 type Props = {
   song: Song;
@@ -29,12 +39,12 @@ const SongResult = ({ song }: Props) => {
     }
   };
 
-  const dislikeSong = () => {
+  const changeSongTaste = () => {
     if (!isLoading) {
       mutate({
         songUri: song.uri,
         accessTokenCookie,
-        action: SongAction.DISLIKE,
+        action: isDisliked ? SongAction.RELIKE : SongAction.DISLIKE,
       });
     }
   };
@@ -70,11 +80,13 @@ const SongResult = ({ song }: Props) => {
         >
           <Grid container justifyContent="space-between" alignItems="center">
             <Grid item width={50} sx={{ textAlign: "center" }}>
-              <ButtonBase onClick={shiftSong}>
-                <Typography fontSize={60} align="center">
-                  {isInPlaylist ? "-" : "+"}
-                </Typography>
-              </ButtonBase>
+              <IconButton onClick={shiftSong}>
+                {isInPlaylist ? (
+                  <RemoveIcon fontSize="large" />
+                ) : (
+                  <AddIcon fontSize="large" />
+                )}
+              </IconButton>
             </Grid>
             <Grid item>
               <Typography align="center" fontSize={17} fontWeight={600}>
@@ -88,11 +100,13 @@ const SongResult = ({ song }: Props) => {
               </Typography>
             </Grid>
             <Grid item width={50} sx={{ textAlign: "center" }}>
-              <ButtonBase onClick={dislikeSong}>
-                <Typography fontSize={50} align="center">
-                  X
-                </Typography>
-              </ButtonBase>
+              <IconButton onClick={changeSongTaste}>
+                {isDisliked ? (
+                  <ThumbUpOutlinedIcon fontSize="large" />
+                ) : (
+                  <ThumbDownOutlinedIcon fontSize="large" />
+                )}
+              </IconButton>
             </Grid>
           </Grid>
         </Grid>

@@ -9,6 +9,8 @@ import { CustomAppBar } from "../components/CustomAppBar";
 const AddedSongs = () => {
   useAuth();
 
+  const listType = ListType.PLAYLIST_SONG;
+
   return (
     <>
       <CustomAppBar />
@@ -28,12 +30,12 @@ const AddedSongs = () => {
           </Container>
         </Grid>
         <Grid item>
-          <SongCount listType={ListType.PLAYLIST_SONG} />
+          <SongCount listType={listType} />
         </Grid>
         <Grid item>
-          <SongList listType={ListType.PLAYLIST_SONG} enableQueryOnLoad />
+          <SongList listType={listType} />
         </Grid>
-        <LoadingModal />
+        <LoadingModal listType={listType} />
       </Grid>
     </>
   );

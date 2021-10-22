@@ -1,5 +1,4 @@
 import { Grid, Modal, Paper } from "@mui/material";
-import { useQuery } from "react-query";
 import {
   AUTH_LOADING_TEXT,
   ListType,
@@ -7,20 +6,17 @@ import {
   SEARCH_LOADING_TEXT,
 } from "../constants";
 import { useAppContext } from "../context/appContext";
-import { getSongList } from "../mutationFunctions/songs";
-import { getAuthCookies } from "../util/cookies";
+import { useSongListQuery } from "../hooks/useSongListQuery";
 
-const LoadingModal = () => {
+type Props = {
+  listType: ListType;
+};
+
+const LoadingModal = ({ listType }: Props) => {
   const { loginMutation, refreshAuthMutation, reloadFromSpotifyMutation } =
     useAppContext();
 
-  const { accessTokenCookie } = getAuthCookies();
-
-  const songListQuery = useQuery(
-    ["getSongList"],
-    () => getSongList({ accessTokenCookie, listType: ListType.SAVED_SONG }),
-    { enabled: false }
-  );
+  const songListQuery = useSongListQuery(listType);
 
   const loadingText = songListQuery.isFetching
     ? SEARCH_LOADING_TEXT

@@ -6,7 +6,7 @@ import { SongAction } from "../../constants";
 import { getUserId } from "../../spotifyHelpers/getUserId";
 import { addSong } from "../../spotifyHelpers/addSong";
 import { removeSong } from "../../spotifyHelpers/removeSong";
-import { dislikeSong } from "../../databaseHelpers/dislikeSong";
+import { changeSongTaste } from "../../databaseHelpers/changeSongTaste";
 
 export type Data = { isInPlaylist?: boolean; isDisliked?: boolean };
 
@@ -26,11 +26,13 @@ const modifySong = async (
     const userId = await getUserId(accessToken);
     const playlistId = await getDestinationPlaylistId(accessToken, userId);
 
+    const db = await connectToDatabase();
     let returnValues;
     switch (action) {
       case SongAction.ADD: {
         await addSong(accessToken, playlistId, songUri);
-        returnValues = { isInPlaylist: true };
+        await changeSongTaste(db, userId, songUri, false);
+        returnValues = { isInPlaylist: true, isDisliked: false };
         break;
       }
       case SongAction.REMOVE: {
@@ -39,10 +41,14 @@ const modifySong = async (
         break;
       }
       case SongAction.DISLIKE: {
-        const db = await connectToDatabase();
-        await dislikeSong(db, userId, songUri);
+        await changeSongTaste(db, userId, songUri, true);
         await removeSong(accessToken, playlistId, songUri);
-        returnValues = { isDisliked: true, isInPlaylist: false };
+        returnValues = { isInPlaylist: false, isDisliked: true };
+        break;
+      }
+      case SongAction.RELIKE: {
+        await changeSongTaste(db, userId, songUri, false);
+        returnValues = { isDisliked: false };
         break;
       }
     }

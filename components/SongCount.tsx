@@ -12,8 +12,9 @@ const SongCount = ({ listType }: Props) => {
   const { accessTokenCookie, expiryTimeCookie } = getAuthCookies();
   const isExpired = getIsAccessTokenExpired(expiryTimeCookie);
 
-  const { isLoading, data } = useQuery([`getSongCount`, isExpired], () =>
-    getSongCount({ accessTokenCookie, listType, isExpired })
+  const { isLoading, data } = useQuery(
+    [`getSongCount - ${listType}`, isExpired],
+    () => getSongCount({ accessTokenCookie, listType, isExpired })
   );
 
   if (isLoading || data?.count === undefined) {
