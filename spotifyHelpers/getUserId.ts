@@ -1,7 +1,7 @@
 import axios from "axios";
 import { buildHeaders } from "../util/headers";
 
-const getUserId = async (accessToken: string): Promise<string | Error> => {
+export const getUserId = async (accessToken: string): Promise<string> => {
   try {
     const response = await axios.get("https://api.spotify.com/v1/me", {
       headers: buildHeaders(accessToken),
@@ -9,8 +9,6 @@ const getUserId = async (accessToken: string): Promise<string | Error> => {
 
     return response?.data.id;
   } catch (error: any) {
-    return new Error(`error fetching userId: ${error.message}`);
+    throw new Error(`error fetching userId: ${error.message}`);
   }
 };
-
-export default getUserId;

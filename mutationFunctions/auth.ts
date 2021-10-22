@@ -11,9 +11,13 @@ export const login = async ({ code }: { code: string }) => {
   return data;
 };
 
-export const refresh = async ({ refreshToken }: { refreshToken: string }) => {
+export const refreshAuth = async ({
+  refreshToken,
+}: {
+  refreshToken: string;
+}) => {
   const { data } = await axios.post(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/refresh`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/refreshAuth`,
     {
       refreshToken,
     }

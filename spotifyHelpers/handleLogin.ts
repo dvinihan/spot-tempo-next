@@ -1,9 +1,12 @@
 import axios from "axios";
-import { LoginBody, RefreshBody, Tokens } from "../types/serverTypes";
 
-const handleLogin = async (
-  body: LoginBody | RefreshBody
-): Promise<Tokens | Error> => {
+export const handleLogin = async (
+  body: any
+): Promise<{
+  accessToken: string;
+  expiryTime: number;
+  refreshToken: string;
+}> => {
   const base64data = Buffer.from(
     `${process.env.NEXT_PUBLIC_CLIENT_ID}:${process.env.CLIENT_SECRET}`
   ).toString("base64");
@@ -11,7 +14,7 @@ const handleLogin = async (
   try {
     const { data } = await axios.post(
       "https://accounts.spotify.com/api/token",
-      new URLSearchParams(body as any).toString(),
+      new URLSearchParams(body).toString(),
       {
         headers: {
           Authorization: `Basic ${base64data}`,
@@ -29,8 +32,6 @@ const handleLogin = async (
       refreshToken: data.refresh_token,
     };
   } catch (error: any) {
-    return new Error(`error logging in: ${error.message}`);
+    throw new Error(`error logging in: ${error.message}`);
   }
 };
-
-export default handleLogin;

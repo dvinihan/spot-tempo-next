@@ -3,10 +3,10 @@ import { DESTINATION_PLAYLIST_NAME } from "../constants";
 import { SpotifyPlaylist } from "../types/SpotifyTypes";
 import { buildHeaders } from "../util/headers";
 
-const createDestinationPlaylist = async (
+export const createDestinationPlaylist = async (
   userId: string,
   accessToken: string
-): Promise<SpotifyPlaylist | Error> => {
+): Promise<SpotifyPlaylist> => {
   try {
     const { data } = await axios.post(
       `https://api.spotify.com/v1/users/${userId}/playlists`,
@@ -19,8 +19,6 @@ const createDestinationPlaylist = async (
     );
     return data;
   } catch (error: any) {
-    return new Error(`error creating destination playlist:", ${error.message}`);
+    throw new Error(`error creating destination playlist:", ${error.message}`);
   }
 };
-
-export default createDestinationPlaylist;

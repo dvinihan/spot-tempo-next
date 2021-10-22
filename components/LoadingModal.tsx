@@ -1,29 +1,13 @@
-import { Grid, Modal, Paper } from "@mui/material";
-import {
-  AUTH_LOADING_TEXT,
-  SAVED_SONGS_LOADING_TEXT,
-  SEARCH_LOADING_TEXT,
-} from "../constants";
-import { useAppContext } from "../context/appContext";
+import { Grid, Modal, Paper, Typography } from "@mui/material";
 
-const LoadingModal = () => {
-  const {
-    matchingSongsMutation,
-    loginMutation,
-    refreshMutation,
-    reloadSavedSongsMutation,
-  } = useAppContext();
+type Props = {
+  text: string;
+  isLoading: boolean;
+};
 
-  const loadingText = matchingSongsMutation.isLoading
-    ? SEARCH_LOADING_TEXT
-    : loginMutation.isLoading || refreshMutation.isLoading
-    ? AUTH_LOADING_TEXT
-    : reloadSavedSongsMutation.isLoading
-    ? SAVED_SONGS_LOADING_TEXT
-    : "";
-
+const LoadingModal = ({ text, isLoading }: Props) => {
   return (
-    <Modal open={Boolean(loadingText)}>
+    <Modal open={isLoading}>
       <Grid
         container
         justifyContent="center"
@@ -37,7 +21,7 @@ const LoadingModal = () => {
               padding: "30px",
             }}
           >
-            {loadingText}
+            <Typography fontSize={30}>{text}</Typography>
           </Paper>
         </Grid>
       </Grid>

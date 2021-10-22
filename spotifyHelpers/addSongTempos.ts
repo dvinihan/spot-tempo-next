@@ -3,11 +3,11 @@ import { Song } from "../types/Song";
 import { AudioFeature } from "../types/SpotifyTypes";
 import { buildHeaders } from "../util/headers";
 
-const addSongTempos = async (
+export const addSongTempos = async (
   songs: Song[],
   total: number,
   accessToken: string
-): Promise<Song[] | Error> => {
+): Promise<Song[]> => {
   const step = 100;
 
   try {
@@ -36,8 +36,6 @@ const addSongTempos = async (
     });
     return songsWithTempos;
   } catch (error: any) {
-    return new Error(`error fetching audio features: ${error.message}`);
+    throw new Error(`error fetching audio features: ${error.message}`);
   }
 };
-
-export default addSongTempos;

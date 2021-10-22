@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import getUserId from "../../serverHelpers/getUserId";
-import handleLogin from "../../serverHelpers/handleLogin";
+import { getUserId } from "../../spotifyHelpers/getUserId";
+import { handleLogin } from "../../spotifyHelpers/handleLogin";
 import { addRetryHandler } from "../../util/axios";
 
 export type Data = {
@@ -12,33 +12,27 @@ export type Data = {
 
 const login = async (
   req: NextApiRequest,
-  res: NextApiResponse<Data | Error>
+  res: NextApiResponse<Data | { error: string }>
 ) => {
-  addRetryHandler();
+  try {
+    addRetryHandler();
 
-  const { code, redirectUri } = req.body;
+    const { code, redirectUri } = req.body;
 
-  const authInfo = await handleLogin({
-    code,
-    redirect_uri: redirectUri,
-    grant_type: "authorization_code",
-  });
+    const { accessToken, expiryTime, refreshToken } = await handleLogin({
+      code,
+      redirect_uri: redirectUri,
+      grant_type: "authorization_code",
+    });
 
-  if (authInfo instanceof Error) {
-    return res.status(500).send(authInfo);
+    const userId = await getUserId(accessToken);
+
+    return res
+      .status(200)
+      .send({ accessToken, expiryTime, refreshToken, userId });
+  } catch (error: any) {
+    return res.status(500).send({ error: error.message });
   }
-
-  const { accessToken, expiryTime, refreshToken } = authInfo;
-
-  const userId = await getUserId(accessToken);
-
-  if (userId instanceof Error) {
-    return res.status(500).send(userId);
-  }
-
-  return res
-    .status(200)
-    .send({ accessToken, expiryTime, refreshToken, userId });
 };
 
 export default login;

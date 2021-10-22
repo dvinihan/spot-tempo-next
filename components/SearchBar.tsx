@@ -1,16 +1,17 @@
 import { Button, Input, Typography } from "@mui/material";
 import { useState } from "react";
-import { useAppContext } from "../context/appContext";
+import { ListType } from "../constants";
+import { useSongListQuery } from "../hooks/useSongListQuery";
 
 const SearchBar = () => {
-  const { matchingSongsMutation } = useAppContext();
-
   const [bpm, setBpm] = useState<string>("");
+
+  const songListQuery = useSongListQuery(ListType.SAVED_SONG, bpm);
 
   const handleChange = (e: any) => setBpm(e.target.value);
 
   const handleSearch = () => {
-    matchingSongsMutation.mutate({ bpm });
+    songListQuery.refetch();
   };
 
   const onKeyPress = (e: any) => {

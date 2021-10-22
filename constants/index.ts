@@ -10,5 +10,21 @@ export const AUTH_LOADING_TEXT = "Getting logged in";
 export const SEARCH_LOADING_TEXT = "Loading songs";
 export const SAVED_SONGS_LOADING_TEXT = "Loading all of your saved songs";
 
-export const ADD = "Add";
-export const REMOVE = "Remove";
+export enum SongAction {
+  ADD = "Add",
+  REMOVE = "Remove",
+  DISLIKE = "Dislike",
+  RELIKE = "Relike",
+}
+
+export enum ListType {
+  SAVED_SONG = "Saved",
+  PLAYLIST_SONG = "Playlist",
+  DISLIKED_SONG = "Disliked",
+}
+
+export enum Path {
+  HOME = "/",
+  PLAYLIST_SONGS = "/playlistSongs",
+  DISLIKED_SONGS = "/dislikedSongs",
+}

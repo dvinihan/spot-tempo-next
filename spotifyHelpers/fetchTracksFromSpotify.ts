@@ -2,15 +2,15 @@ import axios from "axios";
 import { Song } from "../types/Song";
 import { SpotifySong } from "../types/SpotifyTypes";
 import { buildHeaders } from "../util/headers";
-import addSongTempos from "./addSongTempos";
+import { addSongTempos } from "./addSongTempos";
 
-const fetchTracksFromSpotify = async ({
+export const fetchTracksFromSpotify = async ({
   tracksUrl,
   accessToken,
 }: {
   tracksUrl: string;
   accessToken: string;
-}): Promise<Song[] | Error> => {
+}): Promise<Song[]> => {
   try {
     // Get the first batch of tracks and the total number of tracks
     const response = await axios.get(`${tracksUrl}?limit=50`, {
@@ -40,7 +40,7 @@ const fetchTracksFromSpotify = async ({
 
     return await addSongTempos(songsCompact, total, accessToken);
   } catch (error: any) {
-    return new Error(`error fetching tracks from Spotify: ${error.message}`);
+    throw new Error(`error fetching tracks from Spotify: ${error.message}`);
   }
 };
 
@@ -67,5 +67,3 @@ const extractRelevantFields = (song: SpotifySong) => {
 
   return { artist: artistNameString, id, name, uri } as Song;
 };
-
-export default fetchTracksFromSpotify;
