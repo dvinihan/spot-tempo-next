@@ -1,52 +1,40 @@
-import { Button, Container, Grid, Typography } from "@mui/material";
+import { Container, Grid, Typography } from "@mui/material";
 import SearchBar from "../components/SearchBar";
 import SongCount from "../components/SongCount";
 import LoadingModal from "../components/LoadingModal";
 import { useAuth } from "../hooks/useAuth";
-import { ListType } from "../constants";
+import { ListType, SYNCING_SPOTIFY_TEXT } from "../constants";
 import SongList from "../components/SongList";
 import { CustomAppBar } from "../components/CustomAppBar";
-import { useMutation } from "react-query";
-import { reloadFromSpotify } from "../mutationFunctions/songs";
-import { useSongCountQuery } from "../hooks/useSongCountQuery";
-import { getAuthCookies } from "../util/cookies";
 import { useSongListQuery } from "../hooks/useSongListQuery";
 import { useCallback } from "react";
 import { getLoadingModalText } from "../helpers";
+import LoadingIndicator from "../components/LoadingIndicator";
+import { useSpotifySync } from "../hooks/useSpotifySync";
 
-const SavedSongs = () => {
+type Props = {
+  hasDoneFirstSongLoad: boolean;
+  setHasDoneFirstSongLoad: (hasDoneFirstSongLoad: boolean) => void;
+};
+
+const SavedSongs = ({
+  hasDoneFirstSongLoad,
+  setHasDoneFirstSongLoad,
+}: Props) => {
   const listType = ListType.SAVED_SONG;
 
   const { isAuthLoading } = useAuth();
-
-  const { accessTokenCookie } = getAuthCookies();
-
-  const songCountQuery = useSongCountQuery(listType);
-  const songListQuery = useSongListQuery(listType);
-
-  const reloadFromSpotifyMutation = useMutation(
-    () => reloadFromSpotify({ accessTokenCookie }),
-    {
-      onSuccess: () => {
-        songCountQuery.refetch();
-      },
-    }
+  const { isSpotifySyncing } = useSpotifySync(
+    listType,
+    hasDoneFirstSongLoad,
+    setHasDoneFirstSongLoad
   );
 
-  const handleReload = () => reloadFromSpotifyMutation.mutate();
+  const songListQuery = useSongListQuery(listType);
 
   const loadingModalTextCallback = useCallback(
-    () =>
-      getLoadingModalText(
-        songListQuery.isFetching,
-        isAuthLoading,
-        reloadFromSpotifyMutation.isLoading
-      ),
-    [
-      songListQuery.isFetching,
-      isAuthLoading,
-      reloadFromSpotifyMutation.isLoading,
-    ]
+    () => getLoadingModalText(songListQuery.isFetching, isAuthLoading),
+    [songListQuery.isFetching, isAuthLoading]
   );
 
   return (
@@ -69,21 +57,23 @@ const SavedSongs = () => {
           </Container>
         </Grid>
         <Grid item>
-          <SongCount listType={listType} />
-        </Grid>
-        <Grid item>
-          <Button
-            onClick={handleReload}
-            sx={{
-              color: "black",
-              bgcolor: "lightblue",
-              ":hover": {
-                bgcolor: "white",
-              },
-            }}
+          <Grid
+            container
+            direction="column"
+            spacing={1}
+            justifyContent="center"
+            alignItems="center"
           >
-            Reload from Spotify
-          </Button>
+            <Grid item>
+              <SongCount listType={listType} />
+            </Grid>
+            <Grid item>
+              <LoadingIndicator
+                text={SYNCING_SPOTIFY_TEXT}
+                isLoading={isSpotifySyncing}
+              />
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item>
           <SearchBar />

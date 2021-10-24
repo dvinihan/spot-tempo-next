@@ -9,10 +9,11 @@ import { fetchTracksFromSpotify } from "../../spotifyHelpers/fetchTracksFromSpot
 import { insertUserAndSongs } from "../../databaseHelpers/insertUserAndSongs";
 import { updateSongs } from "../../databaseHelpers/updateSongs";
 import { getDoesUserExist } from "../../databaseHelpers/getUser";
+import { addSongTempos } from "../../spotifyHelpers/addSongTempos";
 
 export type Data = {};
 
-const reloadFromSpotify = async (
+const syncWithSpotify = async (
   req: NextApiRequest,
   res: NextApiResponse<Data | Error>
 ) => {
@@ -24,7 +25,8 @@ const reloadFromSpotify = async (
     const userId = await getUserId(accessToken as string);
     const playlistId = await getDestinationPlaylistId(accessToken, userId);
 
-    const [savedSongs, destinationSongs] = await Promise.all([
+    const db = await connectToDatabase();
+    const [savedSongs, destinationSongs, doesUserExist] = await Promise.all([
       fetchTracksFromSpotify({
         tracksUrl: "https://api.spotify.com/v1/me/tracks",
         accessToken,
@@ -33,35 +35,39 @@ const reloadFromSpotify = async (
         tracksUrl: `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`,
         accessToken,
       }),
+      getDoesUserExist(db, userId),
     ]);
 
-    const db = await connectToDatabase();
-
-    const doesUserExist = await getDoesUserExist(db, userId);
+    const [savedSongsWithTempo, destinationSongsWithTempo, databaseSavedSongs] =
+      await Promise.all([
+        addSongTempos(savedSongs, accessToken),
+        addSongTempos(destinationSongs, accessToken),
+        fetchAllDatabaseSongs(db, userId),
+      ]);
 
     if (doesUserExist) {
       // if user has disliked some songs, we need to keep that info
-      const databaseSavedSongs = await fetchAllDatabaseSongs(db, userId);
+      // const databaseSavedSongs = await fetchAllDatabaseSongs(db, userId);
       const dislikedSongs = databaseSavedSongs.filter(
         (song) => song.isDisliked
       );
 
-      const allSongs = savedSongs.map(
+      const allSongs = savedSongsWithTempo.map(
         (song) =>
           ({
             ...song,
-            isInPlaylist: getIsSongInList(song, destinationSongs),
+            isInPlaylist: getIsSongInList(song, destinationSongsWithTempo),
             isDisliked: getIsSongInList(song, dislikedSongs),
           } as Song)
       );
 
       await updateSongs(db, userId, allSongs);
     } else {
-      const allSongs = savedSongs.map(
+      const allSongs = savedSongsWithTempo.map(
         (song) =>
           ({
             ...song,
-            isInPlaylist: getIsSongInList(song, destinationSongs),
+            isInPlaylist: getIsSongInList(song, destinationSongsWithTempo),
           } as Song)
       );
 
@@ -77,4 +83,4 @@ const reloadFromSpotify = async (
 const getIsSongInList = (song: Song, list: Song[]) =>
   Boolean(list.find((s) => s.id === song.id));
 
-export default reloadFromSpotify;
+export default syncWithSpotify;

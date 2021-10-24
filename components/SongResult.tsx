@@ -43,9 +43,9 @@ const SongResult = ({ song }: Props) => {
     }
   };
 
-  const truncatedSongName = truncate(song.name, { length: 30 });
+  const truncatedSongName = truncate(song.name, { length: 26 });
   const truncatedArtistName = truncate(song.artist, {
-    length: 30,
+    length: 28,
   });
 
   return (
@@ -73,7 +73,7 @@ const SongResult = ({ song }: Props) => {
           }}
         >
           <Grid container justifyContent="space-between" alignItems="center">
-            <Grid item width={50} sx={{ textAlign: "center" }}>
+            <Grid item sx={{ textAlign: "center" }}>
               <IconButton onClick={shiftSong}>
                 {isInPlaylist ? (
                   <RemoveIcon fontSize="large" />
@@ -93,7 +93,7 @@ const SongResult = ({ song }: Props) => {
                 {song.tempo} BPM
               </Typography>
             </Grid>
-            <Grid item width={50} sx={{ textAlign: "center" }}>
+            <Grid item sx={{ textAlign: "center" }}>
               <IconButton onClick={changeSongTaste}>
                 {isDisliked ? (
                   <ThumbUpOutlinedIcon fontSize="large" />

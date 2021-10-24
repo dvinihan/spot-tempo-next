@@ -10,7 +10,7 @@ const SongCount = ({ listType }: Props) => {
   const { isLoading, data } = useSongCountQuery(listType);
 
   if (isLoading || data?.count === undefined) {
-    return <CircularProgress />;
+    return <CircularProgress size="18px" />;
   }
 
   return (

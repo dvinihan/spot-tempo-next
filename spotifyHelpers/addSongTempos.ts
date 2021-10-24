@@ -5,14 +5,13 @@ import { buildHeaders } from "../util/headers";
 
 export const addSongTempos = async (
   songs: Song[],
-  total: number,
   accessToken: string
 ): Promise<Song[]> => {
   const step = 100;
 
   try {
     const requests = [];
-    for (let j = 0; j <= total; j += step) {
+    for (let j = 0; j <= songs.length; j += step) {
       const songIds = songs
         .slice(j, j + step)
         .map((track) => track.id)

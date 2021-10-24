@@ -48,13 +48,13 @@ export const getSongList = async ({
   return data?.songs;
 };
 
-export const reloadFromSpotify = async ({
+export const syncWithSpotify = async ({
   accessTokenCookie,
 }: {
   accessTokenCookie?: string;
 }) => {
   const { data } = await axios.post(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/reloadFromSpotify`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/syncWithSpotify`,
     {
       accessToken: accessTokenCookie,
     }

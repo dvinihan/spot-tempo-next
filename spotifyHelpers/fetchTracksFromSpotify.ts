@@ -36,9 +36,9 @@ export const fetchTracksFromSpotify = async ({
       songs.push(...res.data.items);
     });
 
-    const songsCompact = songs.map((song) => extractRelevantFields(song.track));
+    return songs.map((song) => extractRelevantFields(song.track));
 
-    return await addSongTempos(songsCompact, total, accessToken);
+    // return await addSongTempos(songsCompact, total, accessToken);
   } catch (error: any) {
     throw new Error(`error fetching tracks from Spotify: ${error.message}`);
   }
