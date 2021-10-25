@@ -1,5 +1,4 @@
 import { Container, Grid, Typography } from "@mui/material";
-import SearchBar from "../components/SearchBar";
 import SongCount from "../components/SongCount";
 import LoadingModal from "../components/LoadingModal";
 import { useAuth } from "../hooks/useAuth";
@@ -9,19 +8,19 @@ import { CustomAppBar } from "../components/CustomAppBar";
 import { useSongListQuery } from "../hooks/useSongListQuery";
 import { useCallback } from "react";
 import { getLoadingModalText } from "../helpers";
-import LoadingIndicator from "../components/LoadingIndicator";
 import { useSpotifySync } from "../hooks/useSpotifySync";
+import LoadingIndicator from "../components/LoadingIndicator";
 
 type Props = {
   hasDoneFirstSongLoad: boolean;
   setHasDoneFirstSongLoad: (hasDoneFirstSongLoad: boolean) => void;
 };
 
-const SavedSongs = ({
+const UntouchedSongs = ({
   hasDoneFirstSongLoad,
   setHasDoneFirstSongLoad,
 }: Props) => {
-  const listType = ListType.SAVED_SONG;
+  const listType = ListType.UNTOUCHED_SONG;
 
   const { isAuthLoading } = useAuth();
   const { isSpotifySyncing } = useSpotifySync(
@@ -50,9 +49,8 @@ const SavedSongs = ({
       >
         <Grid item>
           <Container>
-            <Typography align="center" sx={{ fontSize: 16 }}>
-              This app will allow you to search for songs in your Liked Songs,
-              and add them to your &quot;SpotTempo&quot; playlist.
+            <Typography align="center" sx={{ fontSize: 30 }}>
+              Untouched Songs
             </Typography>
           </Container>
         </Grid>
@@ -76,9 +74,6 @@ const SavedSongs = ({
           </Grid>
         </Grid>
         <Grid item>
-          <SearchBar />
-        </Grid>
-        <Grid item>
           <SongList listType={listType} />
         </Grid>
         <LoadingModal
@@ -90,4 +85,4 @@ const SavedSongs = ({
   );
 };
 
-export default SavedSongs;
+export default UntouchedSongs;

@@ -4,11 +4,11 @@ import { ListType } from "../constants";
 import { useSongListQuery } from "../hooks/useSongListQuery";
 
 const SearchBar = () => {
-  const [bpm, setBpm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const songListQuery = useSongListQuery(ListType.SAVED_SONG, bpm);
+  const songListQuery = useSongListQuery(ListType.SAVED_SONG, searchTerm);
 
-  const handleChange = (e: any) => setBpm(e.target.value);
+  const handleChange = (e: any) => setSearchTerm(e.target.value);
 
   const handleSearch = () => {
     songListQuery.refetch();
@@ -25,9 +25,8 @@ const SearchBar = () => {
       <Input
         onChange={handleChange}
         onKeyPress={onKeyPress}
-        placeholder="BPM"
-        type="number"
-        value={bpm}
+        placeholder="Song name"
+        value={searchTerm}
       />
       <Button
         onClick={handleSearch}

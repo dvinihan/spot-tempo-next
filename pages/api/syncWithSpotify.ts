@@ -9,7 +9,6 @@ import { fetchTracksFromSpotify } from "../../spotifyHelpers/fetchTracksFromSpot
 import { insertUserAndSongs } from "../../databaseHelpers/insertUserAndSongs";
 import { updateSongs } from "../../databaseHelpers/updateSongs";
 import { getDoesUserExist } from "../../databaseHelpers/getUser";
-import { addSongTempos } from "../../spotifyHelpers/addSongTempos";
 
 export type Data = {};
 
@@ -38,36 +37,29 @@ const syncWithSpotify = async (
       getDoesUserExist(db, userId),
     ]);
 
-    const [savedSongsWithTempo, destinationSongsWithTempo, databaseSavedSongs] =
-      await Promise.all([
-        addSongTempos(savedSongs, accessToken),
-        addSongTempos(destinationSongs, accessToken),
-        fetchAllDatabaseSongs(db, userId),
-      ]);
-
     if (doesUserExist) {
       // if user has disliked some songs, we need to keep that info
-      // const databaseSavedSongs = await fetchAllDatabaseSongs(db, userId);
+      const databaseSavedSongs = await fetchAllDatabaseSongs(db, userId);
       const dislikedSongs = databaseSavedSongs.filter(
         (song) => song.isDisliked
       );
 
-      const allSongs = savedSongsWithTempo.map(
+      const allSongs = savedSongs.map(
         (song) =>
           ({
             ...song,
-            isInPlaylist: getIsSongInList(song, destinationSongsWithTempo),
+            isInPlaylist: getIsSongInList(song, destinationSongs),
             isDisliked: getIsSongInList(song, dislikedSongs),
           } as Song)
       );
 
       await updateSongs(db, userId, allSongs);
     } else {
-      const allSongs = savedSongsWithTempo.map(
+      const allSongs = savedSongs.map(
         (song) =>
           ({
             ...song,
-            isInPlaylist: getIsSongInList(song, destinationSongsWithTempo),
+            isInPlaylist: getIsSongInList(song, destinationSongs),
           } as Song)
       );
 

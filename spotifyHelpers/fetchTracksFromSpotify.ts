@@ -2,7 +2,6 @@ import axios from "axios";
 import { Song } from "../types/Song";
 import { SpotifySong } from "../types/SpotifyTypes";
 import { buildHeaders } from "../util/headers";
-import { addSongTempos } from "./addSongTempos";
 
 export const fetchTracksFromSpotify = async ({
   tracksUrl,
@@ -37,8 +36,6 @@ export const fetchTracksFromSpotify = async ({
     });
 
     return songs.map((song) => extractRelevantFields(song.track));
-
-    // return await addSongTempos(songsCompact, total, accessToken);
   } catch (error: any) {
     throw new Error(`error fetching tracks from Spotify: ${error.message}`);
   }

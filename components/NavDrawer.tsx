@@ -36,6 +36,12 @@ export const NavDrawer = ({ isOpen, handleClose }: Props) => {
         >
           <ListItemText primary="Disliked Songs" />
         </ListItemButton>
+        <ListItemButton
+          onClick={() => handleNav(Path.UNTOUCHED_SONGS)}
+          selected={router.pathname === Path.UNTOUCHED_SONGS}
+        >
+          <ListItemText primary="Untouched Songs" />
+        </ListItemButton>
       </List>
     </Drawer>
   );

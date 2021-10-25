@@ -15,9 +15,9 @@ export const getMatchingSongs = async (
   try {
     addRetryHandler();
 
-    const { accessToken, bpm, start, end, listType } = req.query as {
+    const { accessToken, start, end, listType, searchTerm } = req.query as {
+      searchTerm: string;
       accessToken: string;
-      bpm: string;
       start: string;
       end: string;
       listType: ListType;
@@ -31,14 +31,13 @@ export const getMatchingSongs = async (
     const filterFn =
       listType === ListType.SAVED_SONG
         ? (song: Song) =>
-            song.tempo > Number(bpm) - 5 &&
-            song.tempo < Number(bpm) + 5 &&
-            !song.isDisliked &&
-            !song.isInPlaylist
+            song.name.toLowerCase().includes(searchTerm.toLowerCase())
         : listType === ListType.PLAYLIST_SONG
         ? (song: Song) => song.isInPlaylist
         : listType === ListType.DISLIKED_SONG
         ? (song: Song) => song.isDisliked
+        : listType === ListType.UNTOUCHED_SONG
+        ? (song: Song) => !song.isInPlaylist && !song.isDisliked
         : () => {};
 
     return res.status(200).send({

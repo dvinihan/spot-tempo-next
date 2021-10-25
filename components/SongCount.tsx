@@ -18,11 +18,6 @@ const SongCount = ({ listType }: Props) => {
       <Typography align="center" sx={{ fontWeight: 500 }}>
         Total {listType.toLowerCase()} songs: {data?.count}
       </Typography>
-      {listType === ListType.SAVED_SONG && (
-        <Typography align="center" sx={{ fontWeight: 500 }}>
-          Untouched songs: {data?.untouchedSongCount}
-        </Typography>
-      )}
     </>
   );
 };

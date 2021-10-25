@@ -21,10 +21,12 @@ export enum ListType {
   SAVED_SONG = "Saved",
   PLAYLIST_SONG = "Playlist",
   DISLIKED_SONG = "Disliked",
+  UNTOUCHED_SONG = "Untouched",
 }
 
 export enum Path {
   HOME = "/",
   PLAYLIST_SONGS = "/playlistSongs",
   DISLIKED_SONGS = "/dislikedSongs",
+  UNTOUCHED_SONGS = "/untouchedSongs",
 }

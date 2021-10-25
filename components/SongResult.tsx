@@ -89,9 +89,6 @@ const SongResult = ({ song }: Props) => {
               <Typography align="center" fontSize={17}>
                 {truncatedArtistName}
               </Typography>
-              <Typography align="center" fontSize={17}>
-                {song.tempo} BPM
-              </Typography>
             </Grid>
             <Grid item sx={{ textAlign: "center" }}>
               <IconButton onClick={changeSongTaste}>

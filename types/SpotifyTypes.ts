@@ -13,8 +13,3 @@ export type SpotifyPlaylist = {
   id: string;
   name: string;
 };
-
-export type AudioFeature = {
-  id: string;
-  tempo: number;
-};

@@ -22,22 +22,19 @@ export const getSongCount = async ({
 };
 
 export const getSongList = async ({
-  bpm,
   accessTokenCookie,
   listType,
+  searchTerm,
 }: {
-  bpm?: string;
   accessTokenCookie?: string;
   listType: ListType;
+  searchTerm?: string;
 }) => {
-  if (listType === ListType.SAVED_SONG && !bpm) {
-    return [];
-  }
   const { data } = await axios.get(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/getSongList`,
     {
       params: {
-        bpm,
+        searchTerm,
         start: 0,
         end: 100,
         accessToken: accessTokenCookie,

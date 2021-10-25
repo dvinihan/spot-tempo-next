@@ -8,7 +8,6 @@ import { fetchAllDatabaseSongs } from "../../databaseHelpers/fetchAllDatabaseSon
 
 export type Data = {
   count: number;
-  untouchedSongCount: number;
 };
 
 const getSongCount = async (
@@ -35,15 +34,12 @@ const getSongCount = async (
         ? (song: Song) => song.isInPlaylist
         : listType === ListType.DISLIKED_SONG
         ? (song: Song) => song.isDisliked
+        : listType === ListType.UNTOUCHED_SONG
+        ? (song: Song) => !song.isInPlaylist && !song.isDisliked
         : () => {};
-
-    const untouchedSongs = allDatabaseSongs.filter(
-      (song) => !song.isInPlaylist && !song.isDisliked
-    );
 
     return res.status(200).send({
       count: allDatabaseSongs.filter(filterFn).length,
-      untouchedSongCount: untouchedSongs.length,
     });
   } catch (error: any) {
     return res.status(500).send({ error: error.message });
